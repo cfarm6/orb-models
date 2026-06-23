@@ -4,6 +4,16 @@ import pytest
 import torch
 
 
+def test_tt_direct_registry_includes_orbmol_v1_direct():
+    from orb_models.extensions.tt import TT_DIRECT_PRETRAINED_MODELS, orbmol_v1_direct_tt
+    from orb_models.forcefield import pretrained
+    from orb_models.forcefield.tt import DIRECT_PRETRAINED_MODELS
+
+    assert TT_DIRECT_PRETRAINED_MODELS["orbmol-v1-direct"] is pretrained.orbmol_v1_direct
+    assert DIRECT_PRETRAINED_MODELS["orbmol-v1-direct"] is pretrained.orbmol_v1_direct
+    assert callable(orbmol_v1_direct_tt)
+
+
 @pytest.mark.parametrize("graph_name", ["tt_single_graph", "tt_batch"])
 def test_direct_regressor_tt_sim_matches_cpu(direct_regressor, graph_name, request):
     from orb_models.forcefield.tt import TTBackend, TTDirectForcefieldRegressor

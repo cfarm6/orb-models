@@ -1,0 +1,56 @@
+{
+  "rows": [
+    {
+      "model_key": "orb_v3_direct_20_omat",
+      "tt_ms": 671.89,
+      "cpu_ms": 6459.233269561082,
+      "speedup": 9.61357400809543,
+      "path": "benchmark-results/tt-direct/orb_v3_direct_20_omat_hardware_after_mlp_fusion.txt",
+      "line": "orb-tt-hardware | 2048 | 671.89 | N/A | orb_v3_direct_20_omat | float32-high | False | 25 | tt | 0.0 | 40960 | 40960 | tt-hardware | 6459.233269561082 | 9.61357400809543 | 0.1 | 0.1 | 0.0625452995300293 | 0.02515473961830139 | 20.203125 | 0.0010531917214393616",
+      "label": "Orb-v3 Direct\n20-neighbor OMAT",
+      "latency_reduction_pct": 89.59799140300044,
+      "cpu_throughput": 0.15481713668903493,
+      "tt_throughput": 1.4883388649927816
+    },
+    {
+      "model_key": "orb_v3_direct_20_mpa",
+      "tt_ms": 700.85,
+      "cpu_ms": 3857.9524240922183,
+      "speedup": 5.504706002234366,
+      "path": "benchmark-results/tt-direct/orb_v3_direct_20_mpa_hardware_after_mlp_fusion.txt",
+      "line": "orb-tt-hardware | 2048 | 700.85 | N/A | orb_v3_direct_20_mpa | float32-high | False | 25 | tt | 0.0 | 40960 | 40960 | tt-hardware | 3857.9524240922183 | 5.504706002234366 | 0.1 | 0.1 | 13.27783203125 | 0.05618017911911011 | 0.06723666191101074 | 0.000333809875883162",
+      "label": "Orb-v3 Direct\n20-neighbor MPA",
+      "latency_reduction_pct": 81.83362771341301,
+      "cpu_throughput": 0.25920485534118565,
+      "tt_throughput": 1.4268388385531854
+    },
+    {
+      "model_key": "orb_v3_direct_inf_omat",
+      "tt_ms": 1690.83,
+      "cpu_ms": 9436.966132023372,
+      "speedup": 5.581259093486503,
+      "path": "benchmark-results/tt-direct/orb_v3_direct_inf_omat_hardware_after_mlp_fusion.txt",
+      "line": "orb-tt-hardware | 2048 | 1690.83 | N/A | orb_v3_direct_inf_omat | float32-high | False | 25 | tt | 30.86 | 103056 | 103198 | tt-hardware | 9436.966132023372 | 5.581259093486503 | 0.1 | 0.1 | 0.00039460137486457825 | 0.029021739959716797 | 0.04857975244522095 | 19.08935546875",
+      "label": "Orb-v3 Direct\n\u221e-neighbor OMAT",
+      "latency_reduction_pct": 82.08290698148907,
+      "cpu_throughput": 0.10596625928396661,
+      "tt_throughput": 0.5914255129137761
+    },
+    {
+      "model_key": "orb_v3_direct_inf_mpa",
+      "tt_ms": 1669.63,
+      "cpu_ms": 9341.401254525408,
+      "speedup": 5.594877445452377,
+      "path": "benchmark-results/tt-direct/orb_v3_direct_inf_mpa_hardware_after_mlp_fusion.txt",
+      "line": "orb-tt-hardware | 2048 | 1669.63 | N/A | orb_v3_direct_inf_mpa | float32-high | False | 25 | tt | 27.74 | 103012 | 103134 | tt-hardware | 9341.401254525408 | 5.594877445452377 | 0.1 | 0.1 | 0.000469401478767395 | 0.05248308181762695 | 0.04583251476287842 | 27.709716796875",
+      "label": "Orb-v3 Direct\n\u221e-neighbor MPA",
+      "latency_reduction_pct": 82.12655730647312,
+      "cpu_throughput": 0.10705032069097274,
+      "tt_throughput": 0.5989350934039278
+    }
+  ],
+  "geomean_speedup": 6.375811095178896,
+  "max_speedup": 9.61357400809543,
+  "mean_latency_reduction_pct": 83.91027085109391,
+  "output_dir": "benchmark-results/tt-direct/press-announcement"
+}

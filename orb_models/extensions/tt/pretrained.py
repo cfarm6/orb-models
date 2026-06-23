@@ -54,6 +54,23 @@ def load_tt_direct_model(
     )
 
 
+def orbmol_v1_direct_tt(
+    *,
+    backend: TTBackend | Literal["auto"] = "auto",
+    device_id: int = 0,
+    precision: str = "float32-high",
+    compile: bool | None = False,
+    **loader_kwargs,
+) -> tuple[TTDirectForcefieldRegressor, ForcefieldAtomsAdapter]:
+    return load_tt_direct_model(
+        "orbmol-v1-direct",
+        backend=backend,
+        device_id=device_id,
+        precision=precision,
+        compile=compile,
+        **loader_kwargs,
+    )
+
 def orb_v3_direct_20_omat_tt(
     *,
     backend: TTBackend | Literal["auto"] = "auto",

@@ -39,6 +39,7 @@ def main() -> None:
         "--model",
         default="orb-v3-direct-20-omat",
         choices=(
+            "orbmol-v1-direct",
             "orb-v3-direct-20-omat",
             "orb-v3-direct-inf-omat",
             "orb-v3-direct-20-mpa",
@@ -63,6 +64,9 @@ def main() -> None:
     from orb_models.extensions.tt import load_tt_direct_model
 
     atoms = build_atoms(args.repeats)
+    if args.model == "orbmol-v1-direct":
+        atoms.info["charge"] = 0.0
+        atoms.info["spin"] = 1.0
     backend = cast(TTBackendArg, args.backend)
     model, atoms_adapter = load_tt_direct_model(args.model, backend=backend, compile=False)
 

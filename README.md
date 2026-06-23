@@ -1,3 +1,4 @@
+[README.md#8F24]
 
 <p align="center">
   <img src="./assets/logo_color_text.png" alt="Orbital Materials" width="600"/>
@@ -21,7 +22,7 @@ Alternatively, you can use Docker to run orb-models; [see instructions below](#d
 
 #### Tenstorrent environment
 
-Tenstorrent support is optional and currently targets direct forcefield models. Install the Orb optional dependency first:
+Tenstorrent support is optional, currently targets direct forcefield models, and is only available by installing this branch from source. Install the Orb optional dependency from this checkout first:
 
 ```bash
 uv venv --python 3.12
@@ -47,12 +48,17 @@ ls /dev/tenstorrent/0
 python -c "import ttnn; print('ttnn hardware runtime ok')"
 ```
 
-Run the Tenstorrent direct-model example on the simulator, hardware, or auto backend:
+Run the Tenstorrent direct-model examples on the simulator, hardware, or auto backend:
 
 ```bash
 python examples/TTDirectInference.py --backend simulator
 python examples/TTDirectInference.py --backend hardware
 python examples/TTDirectInference.py --backend auto
+python examples/TTDirectInference.py --model orbmol-v1-direct --backend simulator --repeats 1
+
+python examples/TTDirectASE.py --backend simulator
+python examples/TTDirectASE.py --backend hardware --relax --fmax 0.05
+python examples/TTDirectASE.py --model orbmol-v1-direct --backend simulator
 ```
 
 `auto` uses hardware when `/dev/tenstorrent/0` exists; otherwise it uses the simulator. To run the TT parity checks:
@@ -62,6 +68,8 @@ pytest -q tests/forcefield/tt
 ```
 
 ### Updates
+
+**June 2026**: Added experimental Tenstorrent support for direct forcefield models on this branch. The TT extension provides simulator and hardware backends for supported direct Orb/OrbMol models through `load_tt_direct_model(...)` and `TTDirectCalculator`.
 
 **May 2026**: Release of OrbMol-v2 — adds a `CoulombModule` for long-range electrostatics on top of the OrbMol architecture, using direct Coulomb summation for non-periodic systems and Particle Mesh Ewald (via `nvalchemiops`) for periodic. Trained on OMol25 and OPoly26 (ωB97M-V/def2-TZVPD); load with `pretrained.orbmol_v2(device="cuda")`. See [MODELS.md](MODELS.md) for the full architecture description.
 
@@ -168,9 +176,54 @@ print("Optimized Energy:", atoms.get_potential_energy())
 
 Or you can use it to run MD simulations. The script, an example input xyz file and a Colab notebook demonstration are available in the [examples directory](./examples). This should work with any input, simply modify the input_file and cell_size parameters. We recommend using constant volume simulations.
 
-#### Usage with Tenstorrent direct models
+#### Usage with Tenstorrent-supported Orb models
 
-The Tenstorrent extension wraps direct Orb forcefield models and runs linear layers through TT-Lang/TTNN while keeping graph featurization on CPU. See [`examples/TTDirectInference.py`](./examples/TTDirectInference.py) for a minimal energy/forces inference example.
+The Tenstorrent extension wraps supported Orb forcefield models and runs eligible linear layers through TT-Lang/TTNN while keeping graph featurization on CPU. See [`examples/TTDirectInference.py`](./examples/TTDirectInference.py) for a minimal energy/forces inference example and [`examples/TTDirectASE.py`](./examples/TTDirectASE.py) for the ASE calculator workflow.
+
+Supported model names for `load_tt_direct_model(...)` and `TTDirectCalculator.from_pretrained(...)`:
+
+- `orb-v3-direct-20-omat`
+- `orb-v3-direct-inf-omat`
+- `orb-v3-direct-20-mpa`
+- `orb-v3-direct-inf-mpa`
+- `orb-v3-direct-omol`
+- `orbmol-v1-direct`
+- `separate-d3-3layer`
+- `separate-d3-5layer`
+- `separate-d4-3layer`
+- `separate-d4-5layer`
+- `orb-v2`
+- `orb-mptraj-only-v2`
+- `orb-d3-v2`
+- `orb-d3-sm-v2`
+- `orb-d3-xs-v2`
+
+For OrbMol/OMol models (`orb-v3-direct-omol`, `orbmol-v1-direct`), set `atoms.info["charge"]` and `atoms.info["spin"]` before featurization. The TT examples set a neutral singlet by default (`charge = 0.0`, `spin = 1.0`).
+
+Use `TTDirectCalculator` for the standard ASE workflow (relaxations, MD, optimizers):
+
+```python
+from ase.build import bulk
+from ase.optimize import BFGS
+
+from orb_models.extensions.tt import TTDirectCalculator
+
+atoms = bulk("Cu", "fcc", a=3.6, cubic=True).repeat((2, 2, 2))
+calc = TTDirectCalculator.from_pretrained(
+    "orb-v3-direct-20-omat",
+    backend="simulator",  # or "hardware" / "auto"
+    compile=False,
+)
+try:
+    atoms.calc = calc
+    print(atoms.get_potential_energy())
+    print(atoms.get_forces())
+    BFGS(atoms).run(fmax=0.05)
+finally:
+    calc.close()
+```
+
+Lower-level access without ASE:
 
 ```python
 from ase.build import bulk
@@ -180,6 +233,8 @@ from orb_models.extensions.tt import load_tt_direct_model
 atoms = bulk("Cu", "fcc", a=3.6, cubic=True).repeat((2, 2, 2))
 orbff, atoms_adapter = load_tt_direct_model(
     "orb-v3-direct-20-omat",
+    # "orbmol-v1-direct" is also supported; set atoms.info["charge"] and
+    # atoms.info["spin"] before featurization for charged/spin-polarized systems.
     backend="simulator",  # or "hardware" / "auto"
     compile=False,
 )
@@ -276,208 +331,7 @@ graph = atoms_adapter.from_ase_atoms(atoms, device=device)
 result = orbff.predict(graph, split=False)
 ```
 
-### D3 correction
-
-We provide a D3 dispersion correction module, based on [`nvalchemiops`](https://nvidia.github.io/nvalchemi-toolkit-ops/examples/dispersion/index.html), for improved modeling of van der Waals interactions. To use D3 correction, wrap your model with `D3SumModel`:
-```python
-import ase
-from ase.build import bulk
-
-from orb_models.forcefield import pretrained
-from orb_models.forcefield.inference.calculator import ORBCalculator
-from orb_models.forcefield.inference.d3_model import D3SumModel, AlchemiDFTD3
-
-device = "cpu"  # or device="cuda"
-orbff, atoms_adapter = pretrained.orb_v3_conservative_inf_omat(
-  device=device,
-  precision="float32-high",   # or "float32-highest" / "float64
-)
-orbff_d3 = D3SumModel(orbff, AlchemiDFTD3(functional="PBE", damping="BJ", compile=True))
-
-calc = ORBCalculator(orbff_d3, atoms_adapter=atoms_adapter, device=device)
-atoms = bulk('Cu', 'fcc', a=3.58, cubic=True)
-
-atoms.calc = calc
-atoms.get_potential_energy()
-```
-
-Or with TorchSim:
-```python
-import torch
-import torch_sim as ts
-from ase.build import bulk
-
-from orb_models.forcefield import pretrained
-from orb_models.forcefield.inference.orb_torchsim import OrbTorchSimModel
-from orb_models.forcefield.inference.d3_model import D3SumModel, AlchemiDFTD3
-
-device = "cpu"  # or device="cuda"
-orbff, atoms_adapter = pretrained.orb_v3_conservative_inf_omat(
-  device=device,
-  precision="float32-high",   # or "float32-highest" / "float64
-)
-orbff_d3 = D3SumModel(orbff, AlchemiDFTD3(functional="PBE", damping="BJ", compile=True))
-
-atoms = bulk('Cu', 'fcc', a=3.58, cubic=True)
-ts_state = ts.io.atoms_to_state([atoms], device, dtype=torch.get_default_dtype())
-
-ts_model = OrbTorchSimModel(orbff_d3, atoms_adapter)
-results = ts_model(ts_state)
-results["energy"]
-```
-
-#### Confidence head (Orb-v3 Models Only)
-
-Orb-v3 models have a confidence head which produces a per-atom discrete confidence measure based on a classifier head which learns to predict the binned MAE between predicted and true forces during training. This classifier head has 50 bins, linearly spaced between 0 and 0.4A.
-
-
-```python
-import ase
-import matplotlib.pyplot as plt # optional, for visualization only
-import numpy
-from ase.build import molecule
-from seaborn import heatmap # optional, for visualization only
-
-from orb_models.forcefield import pretrained
-from orb_models.forcefield.inference.calculator import ORBCalculator
-
-device="cpu" # or device="cuda"
-# or choose another model using ORB_PRETRAINED_MODELS[model_name]()
-orbff, atoms_adapter = pretrained.orb_v3_conservative_inf_omat(
-  device=device,
-)
-calc = ORBCalculator(orbff, atoms_adapter=atoms_adapter, device=device)
-# Use a molecule (OOD for Orb-Omat, so confidence plot is
-# more interesting than a bulk crystal)
-atoms = molecule("CH3CH2Cl")
-atoms.calc = calc
-
-forces = atoms.get_forces()
-confidences = calc.results["confidence"]
-predicted_bin_per_atom = numpy.argmax(confidences, axis=-1)
-
-print(forces.shape, confidences.shape) # (num_atoms, 3), (num_atoms, 50)
-print(predicted_bin_per_atom) # List of length num_atoms
-heatmap(confidences)
-plt.xlabel('Confidence Bin')
-plt.ylabel('Atom Index')
-plt.title('Confidence Heatmap')
-plt.show()
-```
-
-### Floating Point Precision
-
-As shown in usage snippets above, we support 3 floating point precision types: `"float32-high"`, `"float32-highest"` and `"float64"`.
-
-The default value of `"float32-high"` is recommended for maximal acceleration when using A100 / H100 Nvidia GPUs. However, we have observed some performance loss for high-precision calculations involving second and third order properties of the PES. In these cases, we recommend `"float32-highest"`. 
-
-In stark contrast to other universal forcefields, we have not found any benefit to using `"float64"`.
-
-### Graph construction
-
-From version 0.5.6, `knn_alchemi` is the default and recommended graph construction method. It uses [ALCHEMI Toolkit-Ops](https://github.com/NVIDIA/nvalchemi-toolkit-ops) for fast GPU-accelerated nearest-neighbor search.
-
-Available methods via `edge_method` parameter in `ORBCalculator`, `OrbTorchSimModel`, `atoms_adapter.from_ase_atoms()`, or `atoms_adapter.from_torchsim_state()`:
-
-| Method | Status | Notes |
-|--------|--------|-------|
-| `knn_alchemi` | **Recommended** | Fast on both CPU and GPU, excellent batch scaling |
-| `knn_scipy` | Deprecated | Slightly faster for single-system CPU construction |
-| `knn_brute_force` | Deprecated | Legacy GPU method for small systems |
-| `knn_cuml_rbc` | Deprecated | Legacy GPU method for larger systems |
-| `knn_cuml_brute` | Deprecated | Legacy cuML brute force |
-
-> **Note:** Deprecated methods will be removed in a future release. For [cuML](https://github.com/rapidsai/cuml)-based methods, install cuml:
-> ```bash
-> pip install "cuml-cu11==25.2.*"  # For CUDA 11.4-11.8
-> pip install "cuml-cu12==25.2.*"  # For CUDA 12.x
-> ```
-
-### Finetuning
-
-You can finetune the model using your custom dataset.
-The dataset should be an [ASE sqlite database](https://wiki.fysik.dtu.dk/ase/ase/db/db.html#module-ase.db.core).
-
-**📖 For detailed instructions, including custom loss weights, reference energies, and API usage, see the [Finetuning Guide](./FINETUNING_GUIDE.md).**
-
-Basic usage:
-```bash
-python finetune.py --dataset=<dataset_name> --data_path=<your_data_path> --base_model=<base_model>
-```
-Where base_model is an element of `orb_models.forcefield.pretrained.ORB_PRETRAINED_MODELS.keys()`.
-
-After the model is finetuned, checkpoints will, by default, be saved to the `ckpts` folder in the directory you ran the finetuning script from. You can use the new model and load the checkpoint by:
-```python
-from orb_models.forcefield import pretrained
-
-model, atoms_adapter = getattr(pretrained, <base_model>)(
-  weights_path=<path_to_ckpt>, 
-  device="cpu",               # or device="cuda"
-  precision="float32-high",   # or precision="float32-highest"
-)
-```
-
-> ⚠ **Caveats**
->
-> Our finetuning script is designed for simplicity. We strongly advise users to customise it further for their use-case to get the best performance. Please be aware that:
-> - The script assumes that your ASE database rows contain **energy, forces, and stress** data. To train on molecular data without stress, you will need to edit the code.
-> - **Early stopping** is not implemented. However, you can use the command line argument `save_every_x_epochs` (default is 5), so "retrospective" early stopping can be applied by selecting a suitable checkpoint.
-> - The **learning rate schedule is hardcoded** to be `torch.optim.lr_scheduler.OneCycleLR` with `pct_start=0.05`. The `max_lr`/`min_lr` will be 10x greater/smaller than the `lr` specified via the command line. To get the best performance, you may wish to try other schedulers.
-> - The defaults of `--num_steps=100` and `--max_epochs=50` are small. This may be suitable for very small finetuning datasets (e.g. 100s of systems), but you will likely want to increase the number of steps for larger datasets (e.g. 1,000s of datapoints).
-> - The default loss equally weights all loss components (energy, forces, stress), but in practice we've found that adjusting the relative weighting can have a significant effect on the overall performance of the model.
-> - The script only tracks a limited set of metrics (energy/force/stress MAEs) which may be insufficient for some downstream use-cases. For instance, if you wish to finetune a model for Molecular Dynamics simulations, we have found (anecdotally) that models that are just on the cusp of overfitting to force MAEs can be substantially worse for simulations. Ideally, more robust "rollout" metrics would be included in the finetuning training loop. In lieu of this, we recommend more aggressive early-stopping i.e. using models several epochs prior to any sign of overfitting.
-
-
-## Docker
-
-You can run orb-models using Docker, which provides a consistent environment with all dependencies pre-installed:
-
-1. Build the Docker image locally:
-
-   ```bash
-   docker build -t orb_models .
-   ```
-2. Run the Docker container:
-
-   ```bash
-   docker run --gpus all --rm --name orb_models -it orb_models /bin/bash
-   ```
-
-
-### Citing
-
-Preprints describing the models in more detail can be found at:
-* **Orb-v3:** https://arxiv.org/abs/2504.06231
-* **Orb-v2:** https://arxiv.org/abs/2410.22570
-
-```bibtex
-@misc{rhodes2025orbv3atomisticsimulationscale,
-      title={Orb-v3: atomistic simulation at scale}, 
-      author={Benjamin Rhodes and Sander Vandenhaute and Vaidotas Šimkus and James Gin and Jonathan Godwin and Tim Duignan and Mark Neumann},
-      year={2025},
-      eprint={2504.06231},
-      archivePrefix={arXiv},
-      primaryClass={cond-mat.mtrl-sci},
-      url={https://arxiv.org/abs/2504.06231}, 
-}
-
-@misc{neumann2024orbfastscalableneural,
-      title={Orb: A Fast, Scalable Neural Network Potential}, 
-      author={Mark Neumann and James Gin and Benjamin Rhodes and Steven Bennett and Zhiyi Li and Hitarth Choubisa and Arthur Hussey and Jonathan Godwin},
-      year={2024},
-      eprint={2410.22570},
-      archivePrefix={arXiv},
-      primaryClass={cond-mat.mtrl-sci},
-      url={https://arxiv.org/abs/2410.22570}, 
-}
-```
-
-### License
-
-Orb models are licensed under the Apache License, Version 2.0. Please see the [LICENSE](LICENSE) file for details.
-
-**If you have an interesting use case or benchmark for an Orb model, please let us know!** We are happy to work with the community to make these models useful for as many applications as possible.
-
-### Community
-
+…
 Please join the discussion on Discord by following [this](https://discord.gg/SyD6vWSSTB) link.
+
+[Showing lines 1-300 of 509. Use :301 to continue]
