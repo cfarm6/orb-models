@@ -19,6 +19,48 @@ Orb models are expected to work on MacOS and Linux. Windows support is not guara
 
 Alternatively, you can use Docker to run orb-models; [see instructions below](#docker).
 
+#### Tenstorrent environment
+
+Tenstorrent support is optional and currently targets direct forcefield models. Install the Orb optional dependency first:
+
+```bash
+uv venv --python 3.12
+source .venv/bin/activate
+uv pip install -e ".[tenstorrent]"
+```
+
+For hardware runs you also need Tenstorrent's driver/runtime stack so that `/dev/tenstorrent/0` exists and `ttnn` imports. The recommended setup path is Tenstorrent's installer:
+
+```bash
+curl -fsSL https://github.com/tenstorrent/tt-installer/releases/download/v2.1.0/install.sh -O
+chmod +x install.sh
+./install.sh --install-container-runtime=no
+```
+
+See Tenstorrent's [TT-Metalium install guide](https://docs.tenstorrent.com/tt-metal/latest/tt-metalium/installing.html) for device-specific driver, firmware, TT-SMI, and Docker options.
+
+Verify the simulator and hardware pieces independently:
+
+```bash
+python -c "from ttl.sim import ttnn; print('tt-lang simulator ok')"
+ls /dev/tenstorrent/0
+python -c "import ttnn; print('ttnn hardware runtime ok')"
+```
+
+Run the Tenstorrent direct-model example on the simulator, hardware, or auto backend:
+
+```bash
+python examples/TTDirectInference.py --backend simulator
+python examples/TTDirectInference.py --backend hardware
+python examples/TTDirectInference.py --backend auto
+```
+
+`auto` uses hardware when `/dev/tenstorrent/0` exists; otherwise it uses the simulator. To run the TT parity checks:
+
+```bash
+pytest -q tests/forcefield/tt
+```
+
 ### Updates
 
 **May 2026**: Release of OrbMol-v2 — adds a `CoulombModule` for long-range electrostatics on top of the OrbMol architecture, using direct Coulomb summation for non-periodic systems and Particle Mesh Ewald (via `nvalchemiops`) for periodic. Trained on OMol25 and OPoly26 (ωB97M-V/def2-TZVPD); load with `pretrained.orbmol_v2(device="cuda")`. See [MODELS.md](MODELS.md) for the full architecture description.
@@ -125,6 +167,30 @@ print("Optimized Energy:", atoms.get_potential_energy())
 ```
 
 Or you can use it to run MD simulations. The script, an example input xyz file and a Colab notebook demonstration are available in the [examples directory](./examples). This should work with any input, simply modify the input_file and cell_size parameters. We recommend using constant volume simulations.
+
+#### Usage with Tenstorrent direct models
+
+The Tenstorrent extension wraps direct Orb forcefield models and runs linear layers through TT-Lang/TTNN while keeping graph featurization on CPU. See [`examples/TTDirectInference.py`](./examples/TTDirectInference.py) for a minimal energy/forces inference example.
+
+```python
+from ase.build import bulk
+
+from orb_models.extensions.tt import load_tt_direct_model
+
+atoms = bulk("Cu", "fcc", a=3.6, cubic=True).repeat((2, 2, 2))
+orbff, atoms_adapter = load_tt_direct_model(
+    "orb-v3-direct-20-omat",
+    backend="simulator",  # or "hardware" / "auto"
+    compile=False,
+)
+try:
+    graph = atoms_adapter.from_ase_atoms(atoms, device="cpu").to("cpu")
+    result = orbff.predict(graph)
+finally:
+    orbff.close()
+
+result["energy"], result["forces"]
+```
 
 #### Usage with TorchSim
 

@@ -25,6 +25,7 @@ dependencies = [
 
 [project.optional-dependencies]
 torchsim = ["torch-sim-atomistic>=0.6.0"]
+tenstorrent = ["tt-lang>=1.1.0"]
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -82,3 +83,9 @@ ignore = [
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+
+[tool.pytest.ini_options]
+markers = [
+    "tt_hardware: requires a connected Tenstorrent accelerator",
+]

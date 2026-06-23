@@ -1,0 +1,95 @@
+Warp CUDA warning: Could not find or load the NVIDIA CUDA driver. GPU execution will not be available.
+Benchmarking orb-forward-compare-tt with 32 atoms
+/home/carson/orb-models/orb_models/common/training/util.py:20: UserWarning: Setting global torch default dtype to torch.float32.
+  warnings.warn(f"Setting global torch default dtype to {torch_dtype}.")
+Downloading …3-direct-inf-mpa-20250404.ckpt ━━━━━━━━━━━ 100% 0:00:05 102.6/102.6
+                                                                     MB         
+2026-06-23 07:36:24.615 | DEBUG    | ttnn:<module>:79 - Initial ttnn.CONFIG:
+Config{cache_path=/home/carson/.cache/ttnn,model_cache_path=/home/carson/.cache/ttnn/models,tmp_dir=/tmp/ttnn,enable_model_cache=false,enable_fast_runtime_mode=true,throw_exception_on_fallback=false,enable_logging=false,enable_graph_report=false,enable_graph_python_stack_traces=false,enable_detailed_buffer_report=false,enable_detailed_tensor_report=false,enable_comparison_mode=false,comparison_mode_should_raise_exception=false,comparison_mode_pcc=0.9999,root_report_path=generated/ttnn/reports,report_name=std::nullopt,std::nullopt}
+[90m2026-06-23 07:36:25.070[0m | info     | [35m            UMD[0m | [37mCreating TopologyDiscovery for architecture: blackhole[0m [90m(topology_discovery.cpp:75)[0m
+[90m2026-06-23 07:36:25.070[0m | info     | [35m            UMD[0m | [37mStarting topology discovery.[0m [90m(topology_discovery.cpp:92)[0m
+[90m2026-06-23 07:36:25.073[0m | warning  | [35m            UMD[0m | [37mLow power mode is disabled while UMD holds open file descriptors. The device will return to low power mode once all file descriptors are closed.[0m [90m(topology_discovery.cpp:143)[0m
+[90m2026-06-23 07:36:25.074[0m | info     | [35m            UMD[0m | [37mEstablished firmware bundle version: 19.7.0[0m [90m(topology_discovery.cpp:544)[0m
+[90m2026-06-23 07:36:25.074[0m | info     | [35m            UMD[0m | [37mFirmware bundle version 19.7.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported.[0m [90m(topology_discovery.cpp:576)[0m
+[90m2026-06-23 07:36:25.074[0m | info     | [35m            UMD[0m | [37mCompleted topology discovery.[0m [90m(topology_discovery.cpp:96)[0m
+[90m2026-06-23 07:36:25.075[0m | info     | [35m         Device[0m | [37mOpening user mode device driver[0m [90m(tt_cluster.cpp:225)[0m
+[90m2026-06-23 07:36:25.075[0m | info     | [35m            UMD[0m | [37mCluster constructor started.[0m [90m(cluster.cpp:320)[0m
+[90m2026-06-23 07:36:25.075[0m | info     | [35m            UMD[0m | [37mCreating TopologyDiscovery for architecture: blackhole[0m [90m(topology_discovery.cpp:75)[0m
+[90m2026-06-23 07:36:25.075[0m | info     | [35m            UMD[0m | [37mStarting topology discovery.[0m [90m(topology_discovery.cpp:92)[0m
+[90m2026-06-23 07:36:25.077[0m | warning  | [35m            UMD[0m | [37mLow power mode is disabled while UMD holds open file descriptors. The device will return to low power mode once all file descriptors are closed.[0m [90m(topology_discovery.cpp:143)[0m
+[90m2026-06-23 07:36:25.078[0m | info     | [35m            UMD[0m | [37mEstablished firmware bundle version: 19.7.0[0m [90m(topology_discovery.cpp:544)[0m
+[90m2026-06-23 07:36:25.078[0m | info     | [35m            UMD[0m | [37mFirmware bundle version 19.7.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported.[0m [90m(topology_discovery.cpp:576)[0m
+[90m2026-06-23 07:36:25.078[0m | info     | [35m            UMD[0m | [37mCompleted topology discovery.[0m [90m(topology_discovery.cpp:96)[0m
+[90m2026-06-23 07:36:25.277[0m | info     | [35m            UMD[0m | [37mOpening local chip ids/PCIe ids: {0}/[0] and remote chip ids {}[0m [90m(cluster.cpp:164)[0m
+[90m2026-06-23 07:36:25.277[0m | info     | [35m            UMD[0m | [37mIOMMU: disabled[0m [90m(cluster.cpp:138)[0m
+[90m2026-06-23 07:36:25.277[0m | info     | [35m            UMD[0m | [37mKMD version: 2.8.1[0m [90m(cluster.cpp:141)[0m
+[90m2026-06-23 07:36:25.277[0m | info     | [35m            UMD[0m | [37mCluster constructor completed.[0m [90m(cluster.cpp:412)[0m
+[90m2026-06-23 07:36:25.278[0m | info     | [35m            UMD[0m | [37mStarting devices in cluster[0m [90m(cluster.cpp:1102)[0m
+[90m2026-06-23 07:36:25.322[0m | info     | [35m            UMD[0m | [37mStarting devices in cluster completed.[0m [90m(cluster.cpp:1110)[0m
+[90m2026-06-23 07:36:25.441[0m | info     | [35m    Distributed[0m | [37mUsing auto discovery to generate mesh graph.[0m [90m(metal_env.cpp:352)[0m
+[90m2026-06-23 07:36:25.441[0m | info     | [35m    Distributed[0m | [37mConstructing control plane using auto-discovery (no mesh graph descriptor).[0m [90m(metal_env.cpp:414)[0m
+[90m2026-06-23 07:36:25.442[0m | info     | [35m            UMD[0m | [37mCreating TopologyDiscovery for architecture: blackhole[0m [90m(topology_discovery.cpp:75)[0m
+[90m2026-06-23 07:36:25.442[0m | info     | [35m            UMD[0m | [37mStarting topology discovery.[0m [90m(topology_discovery.cpp:92)[0m
+[90m2026-06-23 07:36:25.442[0m | warning  | [35m            UMD[0m | [37mLow power mode is disabled while UMD holds open file descriptors. The device will return to low power mode once all file descriptors are closed.[0m [90m(topology_discovery.cpp:143)[0m
+[90m2026-06-23 07:36:25.443[0m | info     | [35m            UMD[0m | [37mEstablished firmware bundle version: 19.7.0[0m [90m(topology_discovery.cpp:544)[0m
+[90m2026-06-23 07:36:25.443[0m | info     | [35m            UMD[0m | [37mFirmware bundle version 19.7.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported.[0m [90m(topology_discovery.cpp:576)[0m
+[90m2026-06-23 07:36:25.443[0m | info     | [35m            UMD[0m | [37mCompleted topology discovery.[0m [90m(topology_discovery.cpp:96)[0m
+[90m2026-06-23 07:36:25.444[0m | warning  | [35m         Always[0m | [37mUnknown motherboard 'F8BAC' for chip_id=0 (bus_id=0xc6) — defaulting tray_id to 0. Add this motherboard and its bus IDs to mobo_to_bus_ids in physical_system_discovery.cpp.[0m [90m(physical_system_discovery.cpp:68)[0m
+[90m2026-06-23 07:36:25.449[0m | info     | [35m   BuildKernels[0m | [37mUsing pre-compiled firmware from: /home/carson/orb-models/.venv/lib/python3.12/site-packages/ttnn/tt_metal/pre-compiled/5052757421748276575/[0m [90m(build_env_manager.cpp:320)[0m
+[90m2026-06-23 07:36:28.304[0m | info     | [35m   BuildKernels[0m | [37mUsing pre-compiled firmware from: /home/carson/orb-models/.venv/lib/python3.12/site-packages/ttnn/tt_metal/pre-compiled/5052757421748276575/[0m [90m(build_env_manager.cpp:320)[0m
+Benchmarking orb-forward-compare-tt with 128 atoms
+[90m2026-06-23 07:36:39.051[0m | info     | [35m   BuildKernels[0m | [37mUsing pre-compiled firmware from: /home/carson/orb-models/.venv/lib/python3.12/site-packages/ttnn/tt_metal/pre-compiled/5052757421748276575/[0m [90m(build_env_manager.cpp:320)[0m
+[90m2026-06-23 07:36:49.229[0m | info     | [35m   BuildKernels[0m | [37mUsing pre-compiled firmware from: /home/carson/orb-models/.venv/lib/python3.12/site-packages/ttnn/tt_metal/pre-compiled/5052757421748276575/[0m [90m(build_env_manager.cpp:320)[0m
+Benchmarking orb-forward-compare-tt with 512 atoms
+[90m2026-06-23 07:37:55.526[0m | info     | [35m   BuildKernels[0m | [37mUsing pre-compiled firmware from: /home/carson/orb-models/.venv/lib/python3.12/site-packages/ttnn/tt_metal/pre-compiled/5052757421748276575/[0m [90m(build_env_manager.cpp:320)[0m
+[90m2026-06-23 07:39:05.000[0m | info     | [35m   BuildKernels[0m | [37mUsing pre-compiled firmware from: /home/carson/orb-models/.venv/lib/python3.12/site-packages/ttnn/tt_metal/pre-compiled/5052757421748276575/[0m [90m(build_env_manager.cpp:320)[0m
+Benchmarking orb-forward-compare-tt with 2048 atoms
+[90m2026-06-23 07:43:03.425[0m | info     | [35m   BuildKernels[0m | [37mUsing pre-compiled firmware from: /home/carson/orb-models/.venv/lib/python3.12/site-packages/ttnn/tt_metal/pre-compiled/5052757421748276575/[0m [90m(build_env_manager.cpp:320)[0m
+[90m2026-06-23 07:47:26.039[0m | info     | [35m   BuildKernels[0m | [37mUsing pre-compiled firmware from: /home/carson/orb-models/.venv/lib/python3.12/site-packages/ttnn/tt_metal/pre-compiled/5052757421748276575/[0m [90m(build_env_manager.cpp:320)[0m
+
+ Output
+name | natoms | time_ms | memory_gb | name | precision | compile | n_params | device | num_edges_std | min_num_edges | max_num_edges | backend | cpu_time_ms | speedup_vs_cpu | parity_atol | parity_rtol | parity_max_abs_stress | parity_max_abs_energy | parity_max_abs_confidence | parity_max_abs_forces
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+orb-cpu | 32 | 68.77 | N/A | orb_v3_direct_inf_mpa | float32-high | False | 25 | cpu | 9.23 | 834 | 872 | cpu |  |  |  |  |  |  |  | 
+orb-tt-hardware | 32 | 65.85 | N/A | orb_v3_direct_inf_mpa | float32-high | False | 25 | tt | 9.23 | 834 | 872 | tt-hardware | 68.77464742865413 | 1.0444153180796567 | 0.1 | 0.1 | 0.0002715284936130047 | 0.18840789794921875 | 0.03575429320335388 | 0.027245856821537018
+orb-cpu | 128 | 357.63 | N/A | orb_v3_direct_inf_mpa | float32-high | False | 25 | cpu | 28.12 | 4044 | 4140 | cpu |  |  |  |  |  |  |  | 
+orb-tt-hardware | 128 | 329.20 | N/A | orb_v3_direct_inf_mpa | float32-high | False | 25 | tt | 28.12 | 4044 | 4140 | tt-hardware | 357.62979998253286 | 1.0863646493935226 | 0.1 | 0.1 | 0.0003764349967241287 | 0.693267822265625 | 0.03670060634613037 | 0.03950121998786926
+orb-cpu | 512 | 2389.44 | N/A | orb_v3_direct_inf_mpa | float32-high | False | 25 | cpu | 0.0 | 27648 | 27648 | cpu |  |  |  |  |  |  |  | 
+orb-tt-hardware | 512 | 2474.59 | N/A | orb_v3_direct_inf_mpa | float32-high | False | 25 | tt | 0.0 | 27648 | 27648 | tt-hardware | 2389.438813435845 | 0.9655887253919969 | 0.1 | 0.1 | 0.0008514225482940674 | 2.91717529296875 | 0.056938111782073975 | 0.04048916697502136
+orb-cpu | 2048 | 8666.24 | N/A | orb_v3_direct_inf_mpa | float32-high | False | 25 | cpu | 38.57 | 103036 | 103166 | cpu |  |  |  |  |  |  |  | 
+orb-tt-hardware | 2048 | 9439.65 | N/A | orb_v3_direct_inf_mpa | float32-high | False | 25 | tt | 38.57 | 103036 | 103166 | tt-hardware | 8666.238727979362 | 0.918067840791274 | 0.1 | 0.1 | 0.0015434883534908295 | 21.593994140625 | 0.05440562963485718 | 0.05753958225250244
+nanobind: leaked 2 instances!
+ - leaked instance 0x7f4f56dbd968 of type "ttnn._ttnn.device.DispatchCoreConfig"
+ - leaked instance 0x7f4f56cacdc8 of type "ttnn._ttnn.tensor.CoreRangeSet"
+nanobind: leaked 39 types!
+ - leaked type "DispatchCoreAxis"
+ - leaked type "ttnn._ttnn.device.SubDeviceManagerId"
+ - leaked type "MathFidelity"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulMultiCoreReuseMultiCast1DProgramConfig"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulInputs"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulMultiCoreReuseMultiCastBatchedDRAMShardedProgramConfig"
+ - leaked type "BufferType"
+ - leaked type "UnaryOpType"
+ - leaked type "Layout"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulMultiCoreReuseOptimizedProgramFactory"
+ - ... skipped remainder
+nanobind: leaked 325 functions!
+ - leaked function "__eq__"
+ - leaked function "__init__"
+ - leaked function "get_optimal_dram_bank_to_logical_worker_assignment"
+ - leaked function ""
+ - leaked function "__init__"
+ - leaked function "DisableMemoryReports"
+ - leaked function ""
+ - leaked function "to_json"
+ - leaked function "tensor_topology"
+ - leaked function "create_submeshes"
+ - ... skipped remainder
+nanobind: this is likely caused by a reference counting issue in the binding code.
+See https://nanobind.readthedocs.io/en/latest/refleaks.html[90m2026-06-23 07:47:36.942[0m | info     | [35m   BuildKernels[0m | [37mJIT cache stats: 420/435 hits (96.6%) [420 cached, 405 build-once dedup, 0 merged artifacts, 0 merged genfiles][0m [90m(build_cache_telemetry.cpp:207)[0m
+[90m2026-06-23 07:47:36.942[0m | info     | [35m   BuildKernels[0m | [37mJIT telemetry: 3 registered TelemetryTokens[0m [90m(build_cache_telemetry.cpp:230)[0m
+[90m2026-06-23 07:47:36.945[0m | info     | [35m         Device[0m | [37mClosing user mode device drivers[0m [90m(tt_cluster.cpp:499)[0m
+[90m2026-06-23 07:47:36.945[0m | info     | [35m            UMD[0m | [37mClosing devices in cluster[0m [90m(cluster.cpp:1115)[0m
+[90m2026-06-23 07:47:37.107[0m | info     | [35m            UMD[0m | [37mClosing devices in cluster completed.[0m [90m(cluster.cpp:1124)[0m
+[90m2026-06-23 07:47:37.107[0m | info     | [35m            UMD[0m | [37mCluster destructor started.[0m [90m(cluster.cpp:553)[0m
+[90m2026-06-23 07:47:37.107[0m | info     | [35m            UMD[0m | [37mCluster destructor completed.[0m [90m(cluster.cpp:556)[0m

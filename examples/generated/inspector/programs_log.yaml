@@ -1,0 +1,802 @@
+- program_created:
+    id: 0
+    timestamp_ns: 1782223341622796516
+- program_compile_started:
+    id: 0
+    timestamp_ns: 1782223341623289891
+- program_kernel_compile_finished:
+    id: 0
+    timestamp_ns: 1782223341624659138
+    duration_ns: 1369247
+    watcher_kernel_id: 3
+    name: cq_dispatch_subordinate
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/cq_dispatch_subordinate/7245879732773684190/
+    source: tt_metal/impl/dispatch/kernels/cq_dispatch_subordinate.cpp
+- program_kernel_compile_finished:
+    id: 0
+    timestamp_ns: 1782223341625544387
+    duration_ns: 2254496
+    watcher_kernel_id: 2
+    name: cq_dispatch
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/cq_dispatch/17458193208992153574/
+    source: tt_metal/impl/dispatch/kernels/cq_dispatch.cpp
+- program_kernel_compile_finished:
+    id: 0
+    timestamp_ns: 1782223341626900028
+    duration_ns: 3610137
+    watcher_kernel_id: 4
+    name: cq_dispatch_subordinate_compute
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/cq_dispatch_subordinate_compute/1371108412553104028/
+    source: tt_metal/impl/dispatch/kernels/cq_dispatch_subordinate_compute.cpp
+- program_kernel_compile_finished:
+    id: 0
+    timestamp_ns: 1782223341626987332
+    duration_ns: 3697441
+    watcher_kernel_id: 1
+    name: cq_prefetch
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/cq_prefetch/14482412103842190316/
+    source: tt_metal/impl/dispatch/kernels/cq_prefetch.cpp
+- program_compile_finished:
+    id: 0
+    timestamp_ns: 1782223341627005496
+    duration_ns: 3715605
+- program_created:
+    id: 1
+    timestamp_ns: 1782223341886995064
+- program_created:
+    id: 2
+    timestamp_ns: 1782223341887371530
+- program_destroyed:
+    id: 2
+    timestamp_ns: 1782223341887373313
+- program_compile_started:
+    id: 1
+    timestamp_ns: 1782223341887395545
+- program_kernel_compile_finished:
+    id: 1
+    timestamp_ns: 1782223342279416160
+    duration_ns: 392020615
+    watcher_kernel_id: 7
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/15323252967142177578/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 1
+    timestamp_ns: 1782223342317247844
+    duration_ns: 429852299
+    watcher_kernel_id: 8
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/15623420594369042350/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_kernel_compile_finished:
+    id: 1
+    timestamp_ns: 1782223342357520032
+    duration_ns: 470124487
+    watcher_kernel_id: 6
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/1345184484881759195/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 1
+    timestamp_ns: 1782223342407431209
+    duration_ns: 520035664
+    watcher_kernel_id: 5
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/13956620788718026483/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_compile_finished:
+    id: 1
+    timestamp_ns: 1782223342407474780
+    duration_ns: 520079235
+- program_created:
+    id: 3
+    timestamp_ns: 1782223342524118764
+- program_created:
+    id: 4
+    timestamp_ns: 1782223342524490952
+- program_destroyed:
+    id: 4
+    timestamp_ns: 1782223342524493166
+- program_compile_started:
+    id: 3
+    timestamp_ns: 1782223342524514396
+- program_kernel_compile_finished:
+    id: 3
+    timestamp_ns: 1782223342858948187
+    duration_ns: 334433791
+    watcher_kernel_id: 11
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/6102612964055095944/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 3
+    timestamp_ns: 1782223342900754501
+    duration_ns: 376240105
+    watcher_kernel_id: 9
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/8310817806795949424/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 3
+    timestamp_ns: 1782223342904111945
+    duration_ns: 379597549
+    watcher_kernel_id: 12
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/665432075944628861/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_kernel_compile_finished:
+    id: 3
+    timestamp_ns: 1782223343055372516
+    duration_ns: 530858120
+    watcher_kernel_id: 10
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/14879604682080415231/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_compile_finished:
+    id: 3
+    timestamp_ns: 1782223343055443429
+    duration_ns: 530929033
+- program_created:
+    id: 5
+    timestamp_ns: 1782223343192746227
+- program_created:
+    id: 6
+    timestamp_ns: 1782223343193177615
+- program_destroyed:
+    id: 6
+    timestamp_ns: 1782223343193180070
+- program_compile_started:
+    id: 5
+    timestamp_ns: 1782223343193206359
+- program_kernel_compile_finished:
+    id: 5
+    timestamp_ns: 1782223343517539197
+    duration_ns: 324332838
+    watcher_kernel_id: 15
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/1032391503771441874/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 5
+    timestamp_ns: 1782223343547513171
+    duration_ns: 354306812
+    watcher_kernel_id: 13
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/11629010647395889168/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 5
+    timestamp_ns: 1782223343551593039
+    duration_ns: 358386680
+    watcher_kernel_id: 16
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/479059514587099595/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_kernel_compile_finished:
+    id: 5
+    timestamp_ns: 1782223343647721427
+    duration_ns: 454515068
+    watcher_kernel_id: 14
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/1092791369326660796/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_compile_finished:
+    id: 5
+    timestamp_ns: 1782223343647744781
+    duration_ns: 454538422
+- program_created:
+    id: 7
+    timestamp_ns: 1782223343755332159
+- program_created:
+    id: 8
+    timestamp_ns: 1782223343755718864
+- program_destroyed:
+    id: 8
+    timestamp_ns: 1782223343755721489
+- program_compile_started:
+    id: 7
+    timestamp_ns: 1782223343755744552
+- program_kernel_compile_finished:
+    id: 7
+    timestamp_ns: 1782223344064104649
+    duration_ns: 308360097
+    watcher_kernel_id: 17
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/4781318529038796538/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 7
+    timestamp_ns: 1782223344082747995
+    duration_ns: 327003443
+    watcher_kernel_id: 19
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/17205768463234164081/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 7
+    timestamp_ns: 1782223344207516458
+    duration_ns: 451771906
+    watcher_kernel_id: 20
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/2712325086957437327/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_kernel_compile_finished:
+    id: 7
+    timestamp_ns: 1782223344218885870
+    duration_ns: 463141318
+    watcher_kernel_id: 18
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/2668843326632408598/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_compile_finished:
+    id: 7
+    timestamp_ns: 1782223344218940923
+    duration_ns: 463196371
+- program_created:
+    id: 9
+    timestamp_ns: 1782223346362465574
+- program_created:
+    id: 10
+    timestamp_ns: 1782223346362857218
+- program_destroyed:
+    id: 10
+    timestamp_ns: 1782223346362859483
+- program_compile_started:
+    id: 9
+    timestamp_ns: 1782223346362884229
+- program_kernel_compile_finished:
+    id: 9
+    timestamp_ns: 1782223346740927514
+    duration_ns: 378043285
+    watcher_kernel_id: 23
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/4355881234094020325/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 9
+    timestamp_ns: 1782223346754431838
+    duration_ns: 391547609
+    watcher_kernel_id: 22
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/2374587824035787311/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 9
+    timestamp_ns: 1782223346813541406
+    duration_ns: 450657177
+    watcher_kernel_id: 24
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/8303736613614090488/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_kernel_compile_finished:
+    id: 9
+    timestamp_ns: 1782223346868270513
+    duration_ns: 505386284
+    watcher_kernel_id: 21
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/14015954839742877984/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_compile_finished:
+    id: 9
+    timestamp_ns: 1782223346868308134
+    duration_ns: 505423905
+- program_created:
+    id: 11
+    timestamp_ns: 1782223349070526714
+- program_created:
+    id: 12
+    timestamp_ns: 1782223349070913920
+- program_destroyed:
+    id: 12
+    timestamp_ns: 1782223349070915994
+- program_compile_started:
+    id: 11
+    timestamp_ns: 1782223349070936803
+- program_kernel_compile_finished:
+    id: 11
+    timestamp_ns: 1782223349414959388
+    duration_ns: 344022585
+    watcher_kernel_id: 27
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/7776258012487207825/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 11
+    timestamp_ns: 1782223349431278247
+    duration_ns: 360341444
+    watcher_kernel_id: 25
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/5144028638214806588/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 11
+    timestamp_ns: 1782223349454154748
+    duration_ns: 383217945
+    watcher_kernel_id: 26
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/15878622288886285543/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 11
+    timestamp_ns: 1782223349618892722
+    duration_ns: 547955919
+    watcher_kernel_id: 28
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/17587894187913932858/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_compile_finished:
+    id: 11
+    timestamp_ns: 1782223349618929210
+    duration_ns: 547992407
+- program_created:
+    id: 13
+    timestamp_ns: 1782223350434969622
+- program_created:
+    id: 14
+    timestamp_ns: 1782223350435297466
+- program_destroyed:
+    id: 14
+    timestamp_ns: 1782223350435299380
+- program_compile_started:
+    id: 13
+    timestamp_ns: 1782223350435320099
+- program_kernel_compile_finished:
+    id: 13
+    timestamp_ns: 1782223350783370804
+    duration_ns: 348050705
+    watcher_kernel_id: 29
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/5954994145137517440/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 13
+    timestamp_ns: 1782223350787915784
+    duration_ns: 352595685
+    watcher_kernel_id: 31
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/14627271394120543327/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 13
+    timestamp_ns: 1782223350894562278
+    duration_ns: 459242179
+    watcher_kernel_id: 30
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/7508969838514914479/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 13
+    timestamp_ns: 1782223350997274818
+    duration_ns: 561954719
+    watcher_kernel_id: 32
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/12160901652951721653/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_compile_finished:
+    id: 13
+    timestamp_ns: 1782223350997307439
+    duration_ns: 561987340
+- program_created:
+    id: 15
+    timestamp_ns: 1782223351991479430
+- program_created:
+    id: 16
+    timestamp_ns: 1782223351991791155
+- program_destroyed:
+    id: 16
+    timestamp_ns: 1782223351991793098
+- program_compile_started:
+    id: 15
+    timestamp_ns: 1782223351991814378
+- program_kernel_compile_finished:
+    id: 15
+    timestamp_ns: 1782223352322908429
+    duration_ns: 331094051
+    watcher_kernel_id: 33
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/11541822153343698681/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 15
+    timestamp_ns: 1782223352352087714
+    duration_ns: 360273336
+    watcher_kernel_id: 34
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/10858342175942135400/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 15
+    timestamp_ns: 1782223352510456971
+    duration_ns: 518642593
+    watcher_kernel_id: 35
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/17400678749049436297/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 15
+    timestamp_ns: 1782223352514247245
+    duration_ns: 522432867
+    watcher_kernel_id: 36
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/12903521040895902572/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_compile_finished:
+    id: 15
+    timestamp_ns: 1782223352514280467
+    duration_ns: 522466089
+- program_created:
+    id: 17
+    timestamp_ns: 1782223357503711814
+- program_created:
+    id: 18
+    timestamp_ns: 1782223357504051892
+- program_destroyed:
+    id: 18
+    timestamp_ns: 1782223357504054005
+- program_compile_started:
+    id: 17
+    timestamp_ns: 1782223357504075205
+- program_kernel_compile_finished:
+    id: 17
+    timestamp_ns: 1782223357851802595
+    duration_ns: 347727390
+    watcher_kernel_id: 37
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/18428498417628453795/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 17
+    timestamp_ns: 1782223357893971108
+    duration_ns: 389895903
+    watcher_kernel_id: 38
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/13675470727034172263/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 17
+    timestamp_ns: 1782223357942885335
+    duration_ns: 438810130
+    watcher_kernel_id: 39
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/2985693062970985066/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 17
+    timestamp_ns: 1782223358031207461
+    duration_ns: 527132256
+    watcher_kernel_id: 40
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/11111715829199034920/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_compile_finished:
+    id: 17
+    timestamp_ns: 1782223358031230234
+    duration_ns: 527155029
+- program_created:
+    id: 19
+    timestamp_ns: 1782223385736561072
+- program_created:
+    id: 20
+    timestamp_ns: 1782223385736842831
+- program_destroyed:
+    id: 20
+    timestamp_ns: 1782223385736844794
+- program_compile_started:
+    id: 19
+    timestamp_ns: 1782223385736862788
+- program_kernel_compile_finished:
+    id: 19
+    timestamp_ns: 1782223385737047795
+    duration_ns: 185007
+    watcher_kernel_id: 41
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/11629010647395889168/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 19
+    timestamp_ns: 1782223386125404262
+    duration_ns: 388541474
+    watcher_kernel_id: 43
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/8228627015536725266/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 19
+    timestamp_ns: 1782223386161483701
+    duration_ns: 424620913
+    watcher_kernel_id: 44
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/304901945667897723/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_kernel_compile_finished:
+    id: 19
+    timestamp_ns: 1782223386203125998
+    duration_ns: 466263210
+    watcher_kernel_id: 42
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/13464200887957644444/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_compile_finished:
+    id: 19
+    timestamp_ns: 1782223386203181973
+    duration_ns: 466319185
+- program_created:
+    id: 21
+    timestamp_ns: 1782223386289797700
+- program_created:
+    id: 22
+    timestamp_ns: 1782223386290064630
+- program_destroyed:
+    id: 22
+    timestamp_ns: 1782223386290067586
+- program_compile_started:
+    id: 21
+    timestamp_ns: 1782223386290088605
+- program_kernel_compile_finished:
+    id: 21
+    timestamp_ns: 1782223386293560974
+    duration_ns: 3472369
+    watcher_kernel_id: 47
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/6451159792117020421/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 21
+    timestamp_ns: 1782223386293585570
+    duration_ns: 3496965
+    watcher_kernel_id: 45
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/11992720688691601063/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 21
+    timestamp_ns: 1782223386293618231
+    duration_ns: 3529626
+    watcher_kernel_id: 46
+    name: reader_bmm_tile_layout_in0_receiver
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_receiver/1317550665672250376/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_receiver.cpp
+- program_kernel_compile_finished:
+    id: 21
+    timestamp_ns: 1782223386295240121
+    duration_ns: 5151516
+    watcher_kernel_id: 48
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/16469001311740240724/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_compile_finished:
+    id: 21
+    timestamp_ns: 1782223386295288121
+    duration_ns: 5199516
+- program_created:
+    id: 23
+    timestamp_ns: 1782223386296530550
+- program_created:
+    id: 24
+    timestamp_ns: 1782223386296628674
+- program_destroyed:
+    id: 24
+    timestamp_ns: 1782223386296629897
+- program_compile_started:
+    id: 23
+    timestamp_ns: 1782223386296638012
+- program_kernel_compile_finished:
+    id: 23
+    timestamp_ns: 1782223386296720707
+    duration_ns: 82695
+    watcher_kernel_id: 51
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/16469001311740240724/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_kernel_compile_finished:
+    id: 23
+    timestamp_ns: 1782223386297549661
+    duration_ns: 911649
+    watcher_kernel_id: 50
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/15442270168194067365/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 23
+    timestamp_ns: 1782223386297560671
+    duration_ns: 922659
+    watcher_kernel_id: 49
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/3696912744979254688/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_compile_finished:
+    id: 23
+    timestamp_ns: 1782223386297570830
+    duration_ns: 932818
+- program_created:
+    id: 25
+    timestamp_ns: 1782223386306088296
+- program_created:
+    id: 26
+    timestamp_ns: 1782223386306423655
+- program_destroyed:
+    id: 26
+    timestamp_ns: 1782223386306426129
+- program_compile_started:
+    id: 25
+    timestamp_ns: 1782223386306442450
+- program_kernel_compile_finished:
+    id: 25
+    timestamp_ns: 1782223386672041569
+    duration_ns: 365599119
+    watcher_kernel_id: 54
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/934218682232147664/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 25
+    timestamp_ns: 1782223386695043685
+    duration_ns: 388601235
+    watcher_kernel_id: 55
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/4412095758468056127/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_kernel_compile_finished:
+    id: 25
+    timestamp_ns: 1782223386790573101
+    duration_ns: 484130651
+    watcher_kernel_id: 52
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/15265375124227244204/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 25
+    timestamp_ns: 1782223386846441123
+    duration_ns: 539998673
+    watcher_kernel_id: 53
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/17081485369008310640/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_compile_finished:
+    id: 25
+    timestamp_ns: 1782223386846517146
+    duration_ns: 540074696
+- program_created:
+    id: 27
+    timestamp_ns: 1782223386869007874
+- program_created:
+    id: 28
+    timestamp_ns: 1782223386869304329
+- program_destroyed:
+    id: 28
+    timestamp_ns: 1782223386869306423
+- program_compile_started:
+    id: 27
+    timestamp_ns: 1782223386869325760
+- program_kernel_compile_finished:
+    id: 27
+    timestamp_ns: 1782223386869485088
+    duration_ns: 159328
+    watcher_kernel_id: 56
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/15265375124227244204/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 27
+    timestamp_ns: 1782223387237895958
+    duration_ns: 368570198
+    watcher_kernel_id: 57
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/11583297054965042454/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 27
+    timestamp_ns: 1782223387240364936
+    duration_ns: 371039176
+    watcher_kernel_id: 59
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/14161785838528070063/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_kernel_compile_finished:
+    id: 27
+    timestamp_ns: 1782223387281653920
+    duration_ns: 412328160
+    watcher_kernel_id: 58
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/4442843000176973472/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_compile_finished:
+    id: 27
+    timestamp_ns: 1782223387281709174
+    duration_ns: 412383414
+- program_created:
+    id: 29
+    timestamp_ns: 1782223387308297673
+- program_created:
+    id: 30
+    timestamp_ns: 1782223387308682224
+- program_destroyed:
+    id: 30
+    timestamp_ns: 1782223387308685109
+- program_compile_started:
+    id: 29
+    timestamp_ns: 1782223387308709144
+- program_kernel_compile_finished:
+    id: 29
+    timestamp_ns: 1782223387308811225
+    duration_ns: 102081
+    watcher_kernel_id: 60
+    name: reader_bmm_tile_layout_in0_sender_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in0_sender_padding/15265375124227244204/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in0_sender_padding.cpp
+- program_kernel_compile_finished:
+    id: 29
+    timestamp_ns: 1782223387621538469
+    duration_ns: 312829325
+    watcher_kernel_id: 62
+    name: reader_bmm_tile_layout_in1_receiver_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_receiver_writer_padding/2641666801162353564/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_receiver_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 29
+    timestamp_ns: 1782223387719414383
+    duration_ns: 410705239
+    watcher_kernel_id: 61
+    name: reader_bmm_tile_layout_in1_sender_writer_padding
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/reader_bmm_tile_layout_in1_sender_writer_padding/11332064771010402643/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/dataflow/reader_bmm_tile_layout_in1_sender_writer_padding.cpp
+- program_kernel_compile_finished:
+    id: 29
+    timestamp_ns: 1782223387727406403
+    duration_ns: 418697259
+    watcher_kernel_id: 63
+    name: bmm_large_block_zm_fused_bias_activation
+    path: /home/carson/.cache/tt-metal-cache/4655624279017807040/kernels/bmm_large_block_zm_fused_bias_activation/12673625534326220328/
+    source: ttnn/cpp/ttnn/operations/matmul/device/kernels/compute/bmm_large_block_zm_fused_bias_activation.cpp
+- program_compile_finished:
+    id: 29
+    timestamp_ns: 1782223387727434707
+    duration_ns: 418725563
+- program_destroyed:
+    id: 0
+    timestamp_ns: 1782223387841853379
+- program_destroyed:
+    id: 5
+    timestamp_ns: 1782223387842049126
+- program_destroyed:
+    id: 15
+    timestamp_ns: 1782223387842127583
+- program_destroyed:
+    id: 1
+    timestamp_ns: 1782223387842192745
+- program_destroyed:
+    id: 19
+    timestamp_ns: 1782223387842267005
+- program_destroyed:
+    id: 3
+    timestamp_ns: 1782223387842318551
+- program_destroyed:
+    id: 11
+    timestamp_ns: 1782223387842384916
+- program_destroyed:
+    id: 17
+    timestamp_ns: 1782223387842451290
+- program_destroyed:
+    id: 7
+    timestamp_ns: 1782223387842502165
+- program_destroyed:
+    id: 21
+    timestamp_ns: 1782223387842554844
+- program_destroyed:
+    id: 9
+    timestamp_ns: 1782223387842575583
+- program_destroyed:
+    id: 29
+    timestamp_ns: 1782223387842626538
+- program_destroyed:
+    id: 13
+    timestamp_ns: 1782223387842780978
+- program_destroyed:
+    id: 23
+    timestamp_ns: 1782223387842815463
+- program_destroyed:
+    id: 27
+    timestamp_ns: 1782223387842829639
+- program_destroyed:
+    id: 25
+    timestamp_ns: 1782223387842899871

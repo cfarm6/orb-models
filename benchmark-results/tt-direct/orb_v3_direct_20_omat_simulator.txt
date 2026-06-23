@@ -1,0 +1,40 @@
+Warp CUDA warning: Could not find or load the NVIDIA CUDA driver. GPU execution will not be available.
+Benchmarking orb-forward-compare-tt with 32 atoms
+/home/carson/orb-models/orb_models/common/training/util.py:20: UserWarning: Setting global torch default dtype to torch.float32.
+  warnings.warn(f"Setting global torch default dtype to {torch_dtype}.")
+2026-06-23 07:50:08.629 | DEBUG    | ttnn:<module>:79 - Initial ttnn.CONFIG:
+Config{cache_path=/home/carson/.cache/ttnn,model_cache_path=/home/carson/.cache/ttnn/models,tmp_dir=/tmp/ttnn,enable_model_cache=false,enable_fast_runtime_mode=true,throw_exception_on_fallback=false,enable_logging=false,enable_graph_report=false,enable_graph_python_stack_traces=false,enable_detailed_buffer_report=false,enable_detailed_tensor_report=false,enable_comparison_mode=false,comparison_mode_should_raise_exception=false,comparison_mode_pcc=0.9999,root_report_path=generated/ttnn/reports,report_name=std::nullopt,std::nullopt}
+
+ Output
+name | natoms | time_ms | memory_gb | name | precision | compile | n_params | device | num_edges_std | min_num_edges | max_num_edges | backend | cpu_time_ms | speedup_vs_cpu | parity_atol | parity_rtol | parity_max_abs_confidence | parity_max_abs_energy | parity_max_abs_stress | parity_max_abs_forces
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+orb-cpu | 32 | 82.45 | N/A | orb_v3_direct_20_omat | float32-high | False | 25 | cpu | 0.0 | 640 | 640 | cpu |  |  |  |  |  |  |  | 
+orb-tt-simulator | 32 | 33143.61 | N/A | orb_v3_direct_20_omat | float32-high | False | 25 | tt | 0.0 | 640 | 640 | tt-simulator | 82.45394006371498 | 0.002487777885361926 | 0.1 | 0.1 | 2.682209014892578e-07 | 0.0 | 7.450580596923828e-09 | 9.834766387939453e-07
+nanobind: leaked 1 instances!
+ - leaked instance 0x7954a6d983d8 of type "ttnn._ttnn.tensor.CoreRangeSet"
+nanobind: leaked 13 types!
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulMultiCoreReuseMultiCast1DProgramConfig"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulInputs"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulMultiCoreReuseMultiCastBatchedDRAMShardedProgramConfig"
+ - leaked type "UnaryOpType"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulMultiCoreReuseOptimizedProgramFactory"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulParams"
+ - leaked type "ttnn._ttnn.tensor.CoreRangeSet"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulMultiCoreReuseProgramConfig"
+ - leaked type "ttnn._ttnn.operations.matmul.MatmulDeviceOperation"
+ - leaked type "ttnn._ttnn.tensor.Tensor"
+ - ... skipped remainder
+nanobind: leaked 197 functions!
+ - leaked function "__eq__"
+ - leaked function ""
+ - leaked function ""
+ - leaked function ""
+ - leaked function ""
+ - leaked function ""
+ - leaked function ""
+ - leaked function "from_json"
+ - leaked function ""
+ - leaked function ""
+ - ... skipped remainder
+nanobind: this is likely caused by a reference counting issue in the binding code.
+See https://nanobind.readthedocs.io/en/latest/refleaks.htmlthedocs.io/en/latest/refleaks.html

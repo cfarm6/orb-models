@@ -1,7 +1,9 @@
 import argparse
+import os
 from collections.abc import Callable
 from copy import deepcopy
 from dataclasses import dataclass, field
+from typing import cast
 
 import ase
 import numpy as np
@@ -184,10 +186,36 @@ def create_random_crystals_list(num_atoms, num_crystals, elements=["Au", "Ag", "
     ]
 
 
-def load_orb(name: str, device: str, precision: str = "float32-high", compile: bool = True):
+def load_orb(
+    name: str,
+    device: str,
+    precision: str = "float32-high",
+    compile: bool = True,
+    *,
+    tt_backend: str | None = None,
+):
     """Load the ORB model."""
-    params = locals()
-    params.pop("device")
+    params = {"name": name, "precision": precision, "compile": compile}
+
+    if tt_backend is not None:
+        if tt_backend not in {"hardware", "simulator"}:
+            raise ValueError("tt_backend must be one of: hardware, simulator")
+
+        from orb_models.extensions.tt import load_tt_direct_model
+        from orb_models.forcefield.tt.backend import TTBackend
+
+        orb, atoms_adapter = load_tt_direct_model(
+            name.replace("_", "-"),
+            backend=cast(TTBackend, tt_backend),
+            device_id=0,
+            precision=precision,
+            compile=False,
+        )
+        params["backend"] = f"tt-{tt_backend}"
+        params["device"] = "tt"
+        params["compile"] = False
+        params["n_params"] = int(sum(p.numel() for p in orb.model.parameters()) / 1e6)
+        return orb, atoms_adapter, params
 
     orb, atoms_adapter = getattr(pretrained, name)(device=device, precision=precision)
 
@@ -218,18 +246,24 @@ def benchmark_orb_forward(
     name = extra_kwargs.pop("name", "orb_v3_direct_20_omat")
     precision = extra_kwargs.pop("precision", "float32-high")
     compile = extra_kwargs.pop("compile", True)
+    tt_backend = extra_kwargs.pop("tt_backend", None)
 
     orb, atoms_adapter, params = load_orb(
-        name=name, device=device, precision=precision, compile=compile
+        name=name,
+        device=device,
+        precision=precision,
+        compile=compile,
+        tt_backend=tt_backend,
     )
+    batch_device = "cpu" if tt_backend is not None else device
 
     # Featurize atoms
     warmup_batches = [
-        atoms_adapter.from_ase_atoms(atoms, device=device).to(device)  # type: ignore
+        atoms_adapter.from_ase_atoms(atoms, device=batch_device).to(batch_device)  # type: ignore
         for atoms in warmup_atoms
     ]
     batches = [
-        atoms_adapter.from_ase_atoms(atoms, device=device).to(device)  # type: ignore
+        atoms_adapter.from_ase_atoms(atoms, device=batch_device).to(batch_device)  # type: ignore
         for atoms in atoms_list
     ]
     num_edges = [len(batch.edge_features["vectors"]) for batch in batches]
@@ -244,27 +278,140 @@ def benchmark_orb_forward(
         for batch in warmup_batches:
             orb.predict(batch)
 
-    measurement = take_measurement(
-        "orb",
-        len(atoms_list[0].positions),
-        [len(atoms.positions) for atoms in atoms_list],
-        model_forward,
-        model_forward_warmup,
-        num_threads=num_threads,
-        device=device,
+    try:
+        measurement = take_measurement(
+            "orb",
+            len(atoms_list[0].positions),
+            [len(atoms.positions) for atoms in atoms_list],
+            model_forward,
+            model_forward_warmup,
+            num_threads=num_threads,
+            device=device,
+            warmup_repeats=warmup_repeats,
+            num_evals=num_evals,
+        )
+        measurement.extras.update(params)
+        if (
+            tt_backend is not None
+            and os.environ.get("ORB_TT_PROFILE", "").lower() in {"1", "true", "yes"}
+            and hasattr(orb, "profile_summary")
+        ):
+            profile = orb.profile_summary()
+            measurement.extras["tt_profile_total_ms"] = sum(
+                item["total_ms"] for item in profile.values()
+            )
+            measurement.extras["tt_profile_shapes"] = len(profile)
+        measurement.extras.update(
+            {
+                "num_edges_std": round(num_edges_std, 2),
+                "min_num_edges": min_num_edges,
+                "max_num_edges": max_num_edges,
+            }
+        )
+    finally:
+        if tt_backend is not None and hasattr(orb, "close"):
+            orb.close()
+
+    return [measurement]
+
+
+def benchmark_orb_forward_compare_tt(
+    atoms_list: list[ase.Atoms],
+    warmup_atoms: list[ase.Atoms],
+    num_threads: int,
+    device: str,
+    extra_kwargs: dict,
+    warmup_repeats: int = 5,
+    num_evals: int = 1,
+) -> list[Measurement]:
+    """Benchmark CPU and TT direct-model forward passes side by side."""
+    cpu_kwargs = deepcopy(extra_kwargs)
+    cpu_kwargs.pop("tt_backend", None)
+
+    tt_kwargs = deepcopy(extra_kwargs)
+    tt_backend = tt_kwargs.pop("tt_backend", "hardware")
+    tt_kwargs["tt_backend"] = tt_backend
+
+    cpu_measurements = benchmark_orb_forward(
+        atoms_list,
+        warmup_atoms,
+        num_threads,
+        device,
+        cpu_kwargs,
         warmup_repeats=warmup_repeats,
         num_evals=num_evals,
     )
-    measurement.extras.update(params)
-    measurement.extras.update(
-        {
-            "num_edges_std": round(num_edges_std, 2),
-            "min_num_edges": min_num_edges,
-            "max_num_edges": max_num_edges,
-        }
-    )
+    for measurement in cpu_measurements:
+        measurement.name = "orb-cpu"
+        measurement.extras["backend"] = "cpu"
 
-    return [measurement]
+    tt_measurements = benchmark_orb_forward(
+        atoms_list,
+        warmup_atoms,
+        num_threads,
+        "cpu",
+        tt_kwargs,
+        warmup_repeats=warmup_repeats,
+        num_evals=num_evals,
+    )
+    for measurement in tt_measurements:
+        measurement.name = f"orb-tt-{tt_backend}"
+        measurement.extras["backend"] = f"tt-{tt_backend}"
+
+    parity_extras = _tt_parity_extras(extra_kwargs, warmup_atoms[0], device, tt_backend)
+    for cpu_measurement, tt_measurement in zip(cpu_measurements, tt_measurements, strict=True):
+        cpu_time_ms = cpu_measurement.time_ms
+        tt_time_ms = tt_measurement.time_ms
+        tt_measurement.extras["cpu_time_ms"] = cpu_time_ms
+        tt_measurement.extras["speedup_vs_cpu"] = (
+            cpu_time_ms / tt_time_ms if cpu_time_ms > 0 and tt_time_ms > 0 else "N/A"
+        )
+        tt_measurement.extras.update(parity_extras)
+
+    return [*cpu_measurements, *tt_measurements]
+
+
+def _tt_parity_extras(
+    extra_kwargs: dict,
+    atoms: ase.Atoms,
+    device: str,
+    tt_backend: str,
+) -> dict:
+    name = extra_kwargs.get("name", "orb_v3_direct_20_omat")
+    precision = extra_kwargs.get("precision", "float32-high")
+
+    cpu_orb, cpu_atoms_adapter, _ = load_orb(
+        name=name,
+        device=device,
+        precision=precision,
+        compile=False,
+    )
+    tt_orb, tt_atoms_adapter, _ = load_orb(
+        name=name,
+        device="cpu",
+        precision=precision,
+        compile=False,
+        tt_backend=tt_backend,
+    )
+    try:
+        cpu_batch = cpu_atoms_adapter.from_ase_atoms(atoms, device=device).to(device)  # type: ignore
+        tt_batch = tt_atoms_adapter.from_ase_atoms(atoms, device="cpu").to("cpu")  # type: ignore
+        cpu_prediction = cpu_orb.predict(cpu_batch)
+        tt_prediction = tt_orb.predict(tt_batch)
+    finally:
+        if hasattr(tt_orb, "close"):
+            tt_orb.close()
+
+    extras = {"parity_atol": 0.1, "parity_rtol": 0.1}
+    for key in cpu_prediction.keys() & tt_prediction.keys():
+        cpu_value = cpu_prediction[key]
+        tt_value = tt_prediction[key]
+        if not isinstance(cpu_value, torch.Tensor) or not isinstance(tt_value, torch.Tensor):
+            continue
+        diff = torch.max(torch.abs(cpu_value.detach().cpu() - tt_value.detach().cpu()))
+        extras[f"parity_max_abs_{key}"] = float(diff)
+
+    return extras
 
 
 def benchmark_orb_featurize(
@@ -350,6 +497,7 @@ def benchmark_inference_with_respect_to_natoms(
     benchmark_fn = {
         "orb-forward": benchmark_orb_forward,
         "orb-featurize": benchmark_orb_featurize,
+        "orb-forward-compare-tt": benchmark_orb_forward_compare_tt,
     }[method]
 
     results: list[Measurement] = []
@@ -376,9 +524,13 @@ def benchmark_inference_with_respect_to_natoms(
     print("\n Output")
     # Create a readable output format without pandas
     headers = ["name", "natoms", "time_ms", "memory_gb"]
-    # Add extra keys from the first result's extras
+    # Add extra keys in first-seen order across all rows.
     if results:
-        extra_keys = list(results[0].extras.keys())
+        extra_keys: list[str] = []
+        for result in results:
+            for key in result.extras:
+                if key not in extra_keys:
+                    extra_keys.append(key)
         headers.extend(extra_keys)
 
     # Print headers
@@ -407,7 +559,12 @@ if __name__ == "__main__":
         description="Benchmark speed and memory of an ORB model.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--method", default="orb-forward", type=str, help="Method to benchmark.")
+    parser.add_argument(
+        "--method",
+        default="orb-forward",
+        type=str,
+        help="Method to benchmark: orb-forward, orb-featurize, or orb-forward-compare-tt.",
+    )
     parser.add_argument(
         "--extra_kwargs",
         default="",
