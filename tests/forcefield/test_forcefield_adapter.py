@@ -194,6 +194,88 @@ def test_forcefield_adapter_requires_both_spin_and_charge():
         adapter.from_ase_atoms(atoms_spin_only)
 
 
+def test_forcefield_adapter_parses_regional_charge_constraints():
+    atoms = Atoms(
+        "H2O",
+        positions=np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0]]),
+        pbc=False,
+    )
+    atoms.set_array("region_mask", np.array([10, 10, 20]))
+    atoms.info["region_charges"] = [0.5, -0.5]
+
+    graph = ForcefieldAtomsAdapter(radius=6.0, max_num_neighbors=100).from_ase_atoms(atoms)
+
+    torch.testing.assert_close(
+        graph.node_features["region_mask"], torch.tensor([0, 0, 1])
+    )
+    torch.testing.assert_close(
+        graph.node_features["region_charges"], torch.tensor([0.5, 0.5, -0.5])
+    )
+
+
+@pytest.mark.parametrize(
+    ("mask", "values", "match"),
+    [
+        (np.array([0, 1, 1]), None, "require both"),
+        (None, [0.0, 0.0], "require both"),
+        (np.array([0, 1, 1]), [0.0], "one charge for each unique region"),
+        (np.array([0.0, 1.0, 1.0]), [0.0, 0.0], "region labels must be integers"),
+    ],
+)
+def test_forcefield_adapter_validates_regional_charge_constraints(mask, values, match):
+    atoms = Atoms(
+        "H2O",
+        positions=np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0]]),
+        pbc=False,
+    )
+    if mask is not None:
+        atoms.set_array("region_mask", mask)
+    if values is not None:
+        atoms.info["region_charges"] = values
+
+    with pytest.raises(ValueError, match=match):
+        ForcefieldAtomsAdapter(radius=6.0, max_num_neighbors=100).from_ase_atoms(atoms)
+
+
+def test_forcefield_adapter_requires_regional_charges_to_match_total_charge():
+    atoms = Atoms(
+        "H2O",
+        positions=np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0]]),
+        pbc=False,
+    )
+    atoms.set_array("region_mask", np.array([0, 0, 1]))
+    atoms.info["region_charges"] = [0.5, -0.5]
+    atoms.info["charge"] = 1
+
+    with pytest.raises(ValueError, match="must sum to atoms.info"):
+        ForcefieldAtomsAdapter(radius=6.0, max_num_neighbors=100).from_ase_atoms(atoms)
+
+
+def test_forcefield_adapter_batches_regional_charge_constraints():
+    water = Atoms(
+        "H2O",
+        positions=np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0]]),
+        pbc=False,
+    )
+    water.set_array("region_mask", np.array([10, 10, 20]))
+    water.info["region_charges"] = [0.5, -0.5]
+    hydrogen = Atoms("H2", positions=np.array([[0, 0, 0], [0, 0, 1]]), pbc=False)
+    hydrogen.set_array("region_mask", np.array([5, 8]))
+    hydrogen.info["region_charges"] = [0.25, -0.25]
+
+    graph = ForcefieldAtomsAdapter(radius=6.0, max_num_neighbors=100).from_ase_atoms_list(
+        [water, hydrogen], device="cpu"
+    )
+
+    torch.testing.assert_close(
+        graph.node_features["region_mask"], torch.tensor([0, 0, 1, 0, 1])
+    )
+    torch.testing.assert_close(
+        graph.node_features["region_charges"],
+        torch.tensor([0.5, 0.5, -0.5, 0.25, -0.25]),
+    )
+
+
 def test_from_ase_atoms_list_parallel_equivalence():
     """Test that from_ase_atoms_list produces equivalent results to sequential processing."""
     n_atoms = 3
@@ -438,12 +520,123 @@ def test_forcefield_adapter_parses_spin_and_charge_from_simstate():
     )
 
     adapter = ForcefieldAtomsAdapter(radius=6.0, max_num_neighbors=100)
-    graph = adapter.from_torchsim_state(state)
+    graph = adapter.from_torchsim_state(state, device="cpu")
 
     assert "total_charge" in graph.system_features
     assert "spin_multiplicity" in graph.system_features
     assert graph.system_features["total_charge"].item() == 1.0
     assert graph.system_features["spin_multiplicity"].item() == 2.0
+
+
+@requires_torch_sim
+def test_forcefield_adapter_parses_regional_charge_constraints_from_simstate():
+    """Test regional charge constraints from TorchSim atom/system extras."""
+    state = ts.SimState(
+        positions=torch.tensor([[0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]]),
+        masses=torch.tensor([1.0, 1.0, 16.0]),
+        cell=torch.diag(torch.tensor([5.0, 5.0, 5.0])).unsqueeze(0),
+        pbc=True,
+        atomic_numbers=torch.tensor([1, 1, 8]),
+        charge=torch.tensor([0.0]),
+        spin=torch.tensor([1.0]),
+        region_mask=torch.tensor([10, 10, 20]),
+        region_charges=torch.tensor([[0.5, -0.5]]),
+    )
+
+    graph = ForcefieldAtomsAdapter(radius=6.0, max_num_neighbors=100).from_torchsim_state(
+        state, device="cpu"
+    )
+
+    torch.testing.assert_close(
+        graph.node_features["region_mask"].cpu(), torch.tensor([0, 0, 1])
+    )
+    torch.testing.assert_close(
+        graph.node_features["region_charges"].cpu(), torch.tensor([0.5, 0.5, -0.5])
+    )
+
+
+@requires_torch_sim
+def test_forcefield_adapter_parses_batched_regional_charge_constraints_from_simstate():
+    """Test batched TorchSim regional constraints with local mask labels per system."""
+    state = ts.SimState(
+        positions=torch.tensor(
+            [
+                [0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [3.0, 0.0, 0.0],
+                [3.0, 1.0, 0.0],
+            ]
+        ),
+        masses=torch.tensor([1.0, 1.0, 16.0, 1.0, 1.0]),
+        cell=torch.diag(torch.tensor([5.0, 5.0, 5.0])).repeat(2, 1, 1),
+        pbc=True,
+        atomic_numbers=torch.tensor([1, 1, 8, 1, 1]),
+        system_idx=torch.tensor([0, 0, 0, 1, 1]),
+        charge=torch.tensor([0.0, 0.0]),
+        spin=torch.tensor([1.0, 1.0]),
+        region_mask=torch.tensor([10, 10, 20, 5, 8]),
+        region_charges=torch.tensor([[0.5, -0.5], [0.25, -0.25]]),
+    )
+
+    graph = ForcefieldAtomsAdapter(radius=6.0, max_num_neighbors=100).from_torchsim_state(
+        state, device="cpu"
+    )
+
+    torch.testing.assert_close(
+        graph.node_features["region_mask"].cpu(), torch.tensor([0, 0, 1, 0, 1])
+    )
+    torch.testing.assert_close(
+        graph.node_features["region_charges"].cpu(),
+        torch.tensor([0.5, 0.5, -0.5, 0.25, -0.25]),
+    )
+
+
+@requires_torch_sim
+def test_forcefield_adapter_parses_atom_target_charge_constraints_from_simstate():
+    """Test atom-level regional target form for variable region counts."""
+    state = ts.SimState(
+        positions=torch.tensor([[0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]]),
+        masses=torch.tensor([1.0, 1.0, 16.0]),
+        cell=torch.diag(torch.tensor([5.0, 5.0, 5.0])).unsqueeze(0),
+        pbc=True,
+        atomic_numbers=torch.tensor([1, 1, 8]),
+        charge=torch.tensor([0.0]),
+        spin=torch.tensor([1.0]),
+        region_mask=torch.tensor([10, 10, 20]),
+        region_charges=torch.tensor([0.5, 0.5, -0.5]),
+    )
+
+    graph = ForcefieldAtomsAdapter(radius=6.0, max_num_neighbors=100).from_torchsim_state(
+        state, device="cpu"
+    )
+
+    torch.testing.assert_close(
+        graph.node_features["region_mask"].cpu(), torch.tensor([0, 0, 1])
+    )
+    torch.testing.assert_close(
+        graph.node_features["region_charges"].cpu(), torch.tensor([0.5, 0.5, -0.5])
+    )
+
+
+@requires_torch_sim
+def test_forcefield_adapter_validates_simstate_regional_charge_sum():
+    state = ts.SimState(
+        positions=torch.tensor([[0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]]),
+        masses=torch.tensor([1.0, 1.0, 16.0]),
+        cell=torch.diag(torch.tensor([5.0, 5.0, 5.0])).unsqueeze(0),
+        pbc=True,
+        atomic_numbers=torch.tensor([1, 1, 8]),
+        charge=torch.tensor([1.0]),
+        spin=torch.tensor([1.0]),
+        region_mask=torch.tensor([10, 10, 20]),
+        region_charges=torch.tensor([[0.5, -0.5]]),
+    )
+
+    with pytest.raises(ValueError, match="must sum to the corresponding total charge"):
+        ForcefieldAtomsAdapter(radius=6.0, max_num_neighbors=100).from_torchsim_state(
+            state, device="cpu"
+        )
 
 
 @requires_torch_sim

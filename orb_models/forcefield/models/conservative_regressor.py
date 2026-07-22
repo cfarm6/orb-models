@@ -184,6 +184,7 @@ class ConservativeForcefieldRegressor(base.RegressorModelMixin[AtomGraphs]):
         latent_charges = None
         if "latent_charges" in self.heads:
             latent_charges = self.heads["latent_charges"](node_features, batch)
+            out["latent_charges"] = latent_charges
 
         latent_spins = None
         if "latent_spins" in self.heads:
@@ -211,6 +212,7 @@ class ConservativeForcefieldRegressor(base.RegressorModelMixin[AtomGraphs]):
             coulomb_energy, coulomb_explicit_forces, coulomb_explicit_virial = self.coulomb_module(
                 latent_charges, batch
             )
+            out["coulomb_energy"] = coulomb_energy
             interaction_energy = interaction_energy + coulomb_energy
 
         out[self.energy_name] = interaction_energy
@@ -282,6 +284,10 @@ class ConservativeForcefieldRegressor(base.RegressorModelMixin[AtomGraphs]):
             )
             out[self.grad_stress_name] = preds[self.grad_stress_name]
         out[self.grad_rotation_name] = preds[self.grad_rotation_name]
+        if "latent_charges" in preds:
+            out["latent_charges"] = preds["latent_charges"]
+        if "coulomb_energy" in preds:
+            out["coulomb_energy"] = preds["coulomb_energy"]
         for name in self.extra_properties:
             head = self.heads[name]
             if isinstance(head, ForcefieldHead):

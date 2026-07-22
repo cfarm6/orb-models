@@ -18,7 +18,7 @@ dependencies = [
     "ase>=3.25.0,<4",
     "scipy>=1.15.1",
     "torch>=2.8.0, <3.0.0",
-    "dm-tree==0.1.8", # Pinned because of https://github.com/google-deepmind/tree/issues/128
+    "dm-tree==0.1.9", # Pinned because of https://github.com/google-deepmind/tree/issues/128
     "tqdm>=4.67.1",
     "nvalchemi-toolkit-ops[torch]>=0.3.1,<0.4",
 ]

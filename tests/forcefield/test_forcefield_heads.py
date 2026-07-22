@@ -8,6 +8,7 @@ from orb_models.common.models.nn_util import ScalarNormalizer
 from orb_models.forcefield.models.forcefield_heads import (
     ConfidenceHead,
     ForceHead,
+    LatentChargeHead,
     LinearReferenceEnergy,
 )
 from orb_models.forcefield.models.forcefield_utils import torch_full_3x3_to_voigt_6_stress
@@ -111,6 +112,54 @@ def test_energy_head_absolute_energy_preserves_kjmol_at_scale(energy_head, batch
     absolute_fp32 = energy_head.absolute_energy(interaction_energy, batch, fp64=False)
     fp32_roundtrip = absolute_fp32 - large_ref
     assert (fp32_roundtrip - interaction_energy).abs().max() > sub_kjmol / 2
+
+
+def test_latent_charge_head_enforces_regional_charge_constraints(batch):
+    head = LatentChargeHead(
+        latent_dim=batch.node_features[_KEY].shape[1],
+        num_mlp_layers=1,
+        charge_scale=2.0,
+    )
+    n_nodes = batch.n_node.tolist()
+    masks = []
+    targets = []
+    expected_region_charges = [[0.4, -0.4], [-0.2, 0.2]]
+    for n_node, region_charges in zip(n_nodes, expected_region_charges, strict=True):
+        n_first_region = n_node // 2
+        masks.extend([0] * n_first_region + [1] * (n_node - n_first_region))
+        targets.extend(
+            [region_charges[0]] * n_first_region + [region_charges[1]] * (n_node - n_first_region)
+        )
+    batch.node_features["region_mask"] = torch.tensor(masks)
+    batch.node_features["region_charges"] = torch.tensor(targets)
+
+    charges = head(batch.node_features[_KEY], batch).squeeze(-1)
+
+    offset = 0
+    for n_node, region_charges in zip(n_nodes, expected_region_charges, strict=True):
+        graph_charges = charges[offset : offset + n_node]
+        graph_mask = batch.node_features["region_mask"][offset : offset + n_node]
+        for region, expected in enumerate(region_charges):
+            torch.testing.assert_close(
+                graph_charges[graph_mask == region].sum(), torch.tensor(expected)
+            )
+        offset += n_node
+
+
+def test_latent_charge_head_preserves_legacy_total_charge_scaling(batch):
+    head = LatentChargeHead(
+        latent_dim=batch.node_features[_KEY].shape[1],
+        num_mlp_layers=1,
+        charge_scale=2.0,
+    )
+    batch.system_features["total_charge"] = torch.tensor([0.5, -0.25])
+
+    charges = head(batch.node_features[_KEY], batch).squeeze(-1)
+
+    offset = 0
+    for n_node, expected in zip(batch.n_node.tolist(), [1.0, -0.5], strict=True):
+        torch.testing.assert_close(charges[offset : offset + n_node].sum(), torch.tensor(expected))
+        offset += n_node
 
 
 def test_force_head_initialization(force_head):

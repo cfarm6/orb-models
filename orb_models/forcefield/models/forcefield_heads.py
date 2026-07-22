@@ -713,7 +713,9 @@ class LatentChargeHead(torch.nn.Module):
     """Predicts per-atom latent charges from node features.
 
     Charges are learned purely from energy/force supervision.
-    Optionally enforces charge neutrality (sum to zero or total_charge).
+    Optionally enforces charge neutrality (sum to zero or total_charge). If the
+    batch supplies regional charge constraints, each region is constrained
+    independently instead.
     """
 
     def __init__(
@@ -750,21 +752,71 @@ class LatentChargeHead(torch.nn.Module):
         charges = self.mlp(node_features)
 
         if self.enforce_total_charge:
-            # Center charges to zero mean per system.
-            mean_charges = segment_ops.aggregate_nodes(charges, batch.n_node, reduction="mean")
-            charges = charges - mean_charges.repeat_interleave(batch.n_node, dim=0)
-
-            # If total_charge is available, shift charges to match it
-            if batch.system_features is not None and "total_charge" in batch.system_features:
-                total_charge = batch.system_features["total_charge"].to(dtype=charges.dtype)
-                charge_shift = total_charge / batch.n_node.to(dtype=charges.dtype)
-                charges = charges + charge_shift.unsqueeze(-1).repeat_interleave(
-                    batch.n_node, dim=0
+            constraint_mask = batch.node_features.get("region_mask")
+            constraint_targets = batch.node_features.get("region_charges")
+            if constraint_mask is not None or constraint_targets is not None:
+                if constraint_mask is None or constraint_targets is None:
+                    raise ValueError(
+                        "Regional charge constraints require both region_mask "
+                        "and region_charges node features."
+                    )
+                charges = self._apply_regional_constraints(
+                    charges * self.charge_scale, constraint_mask, constraint_targets, batch
                 )
+            else:
+                # Center charges to zero mean per system.
+                mean_charges = segment_ops.aggregate_nodes(charges, batch.n_node, reduction="mean")
+                charges = charges - mean_charges.repeat_interleave(batch.n_node, dim=0)
 
-        charges = charges * self.charge_scale
+                # If total_charge is available, shift charges to match it.
+                if batch.system_features is not None and "total_charge" in batch.system_features:
+                    total_charge = batch.system_features["total_charge"].to(dtype=charges.dtype)
+                    charge_shift = total_charge / batch.n_node.to(dtype=charges.dtype)
+                    charges = charges + charge_shift.unsqueeze(-1).repeat_interleave(
+                        batch.n_node, dim=0
+                    )
+                charges = charges * self.charge_scale
+        else:
+            charges = charges * self.charge_scale
 
         return charges
+
+    @staticmethod
+    def _apply_regional_constraints(
+        charges: torch.Tensor,
+        constraint_mask: torch.Tensor,
+        constraint_targets: torch.Tensor,
+        batch: AtomGraphs,
+    ) -> torch.Tensor:
+        """Shift charges so each masked region has its requested net charge."""
+        constraint_mask = constraint_mask.to(device=charges.device, dtype=torch.long)
+        constraint_targets = constraint_targets.to(device=charges.device, dtype=charges.dtype)
+        if constraint_mask.ndim != 1 or constraint_targets.ndim != 1:
+            raise ValueError("Regional charge-constraint node features must be one-dimensional.")
+        if len(constraint_mask) != len(charges) or len(constraint_targets) != len(charges):
+            raise ValueError(
+                "Regional charge-constraint node features must have one value per atom."
+            )
+
+        # Region labels are dense and local to each graph. Offset them by each
+        # graph's first atom index so batched systems may reuse labels such as
+        # 0, 1 while keeping the scatter shape static for torch.compile.
+        region_offsets = (torch.cumsum(batch.n_node, dim=0) - batch.n_node).repeat_interleave(
+            batch.n_node
+        )
+        region_index = region_offsets + constraint_mask
+
+        region_charges = segment_ops.segment_sum(charges, region_index, len(charges))
+        region_counts = segment_ops.segment_sum(
+            torch.ones_like(charges), region_index, len(charges)
+        )
+        safe_region_counts = region_counts.clamp_min(1)
+        region_targets = (
+            segment_ops.segment_sum(constraint_targets.unsqueeze(-1), region_index, len(charges))
+            / safe_region_counts
+        )
+        charge_shift = (region_targets - region_charges) / safe_region_counts
+        return charges + charge_shift[region_index]
 
 
 class LatentSpinHead(torch.nn.Module):

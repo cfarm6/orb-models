@@ -133,6 +133,7 @@ class ForcefieldAtomsAdapter(AbstractAtomsAdapter):
 
         node_feats = {
             **atoms.info.get("node_features", {}),
+            **_get_charge_constraints(atoms),
             "positions": positions,
             "atomic_numbers": torch.from_numpy(atoms.numbers).to(torch.long),
             "atomic_numbers_embedding": feat_utils.get_atom_embedding(atoms),
@@ -328,6 +329,21 @@ class ForcefieldAtomsAdapter(AbstractAtomsAdapter):
         edge_feats.update(_batch_info_tensors(atoms, "edge_features"))
         graph_feats.update(_batch_info_tensors(atoms, "graph_features", system_level=True))
 
+        # Collect optional regional charge constraints: all-or-nothing semantics.
+        charge_constraints = [_get_charge_constraints(a) for a in atoms]
+        has_charge_constraints = [bool(constraints) for constraints in charge_constraints]
+        if any(has_charge_constraints):
+            if not all(has_charge_constraints):
+                raise ValueError(
+                    "Either all atoms must have regional charge constraints, or none of them."
+                )
+            node_feats.update(
+                {
+                    key: torch.cat([constraints[key] for constraints in charge_constraints], dim=0)
+                    for key in charge_constraints[0]
+                }
+            )
+
         # Collect targets from atoms.info
         node_targets = _batch_info_tensors(atoms, "node_targets")
         edge_targets = _batch_info_tensors(atoms, "edge_targets")
@@ -410,6 +426,7 @@ class ForcefieldAtomsAdapter(AbstractAtomsAdapter):
             node_batch_index = torch.arange(
                 n_node.shape[0], dtype=torch.int64, device=device
             ).repeat_interleave(n_node)
+        charge_constraints = _get_torchsim_charge_constraints(state, n_node, node_batch_index)
 
         positions = state.positions
         cell = state.row_vector_cell.contiguous()
@@ -453,6 +470,7 @@ class ForcefieldAtomsAdapter(AbstractAtomsAdapter):
             "positions": positions,
             "atomic_numbers": atomic_numbers,
             "atomic_numbers_embedding": atomic_numbers_embedding,
+            **charge_constraints,
         }
         edge_feats = {
             "vectors": edge_vectors,
@@ -553,3 +571,208 @@ def _get_charge_and_spin(atoms: ase.Atoms | ts.SimState) -> dict[str, torch.Tens
         out["spin_multiplicity"] = atoms.spin
 
     return out
+
+
+def _get_charge_constraints(atoms: ase.Atoms) -> dict[str, torch.Tensor]:
+    """Expand optional ASE regional charge constraints into node features.
+
+    Public ASE input format:
+      - ``atoms.arrays["region_mask"]``: one integer region label per atom.
+      - ``atoms.info["region_charges"]``: one target net charge for each sorted
+        unique region label.
+
+    The targets are repeated per node so systems with different numbers of regions can be
+    batched without padding.
+    """
+    mask = atoms.arrays.get("region_mask")
+    values = atoms.info.get("region_charges")
+    if mask is None and values is None:
+        return {}
+    if mask is None or values is None:
+        raise ValueError(
+            "Regional charge constraints require both atoms.arrays['region_mask'] "
+            "and atoms.info['region_charges']."
+        )
+
+    mask = torch.as_tensor(mask)
+    if mask.ndim != 1 or len(mask) != len(atoms):
+        raise ValueError("region_mask must contain one region label per atom.")
+    if torch.is_floating_point(mask) or mask.dtype == torch.bool:
+        raise ValueError("region_mask region labels must be integers.")
+
+    values = torch.as_tensor(values, dtype=torch.get_default_dtype())
+    if values.ndim != 1:
+        raise ValueError("region_charges must be a one-dimensional list of charges.")
+    if not torch.isfinite(values).all():
+        raise ValueError("region_charges must contain only finite charges.")
+
+    _, normalized_mask = torch.unique(mask, sorted=True, return_inverse=True)
+    n_regions = int(normalized_mask.max()) + 1 if len(normalized_mask) else 0
+    if len(values) != n_regions:
+        raise ValueError(
+            "region_charges must contain one charge for each unique region label "
+            f"in region_mask; got {len(values)} values for {n_regions} regions."
+        )
+    if "charge" in atoms.info and not torch.isclose(
+        values.sum(), torch.tensor(float(atoms.info["charge"]), dtype=values.dtype)
+    ):
+        raise ValueError("region_charges must sum to atoms.info['charge'].")
+
+    return {
+        "region_mask": normalized_mask,
+        "region_charges": values[normalized_mask],
+    }
+
+
+def _get_torchsim_charge_constraints(
+    state: ts.SimState,
+    n_node: torch.Tensor,
+    node_batch_index: torch.Tensor,
+) -> dict[str, torch.Tensor]:
+    """Expand optional TorchSim regional charge constraints into node features.
+
+    Public TorchSim input format:
+      - atom extra ``region_mask``: one integer region label per atom.
+      - ``region_charges`` either as an atom extra with one repeated regional target
+        per atom, or as a system extra with shape ``[n_systems, n_regions]`` and one
+        target charge for each sorted unique region label in every system.
+
+    The atom-target form supports batches whose systems have different numbers of regions.
+    """
+    if not (_TORCH_SIM_AVAILABLE and state.has_extras("region_mask")):
+        return {}
+
+    mask = state.region_mask
+    if mask.ndim != 1 or len(mask) != int(n_node.sum()):
+        raise ValueError("region_mask must contain one region label per atom.")
+    if torch.is_floating_point(mask) or mask.dtype == torch.bool:
+        raise ValueError("region_mask region labels must be integers.")
+
+    has_atom_region_charges = "region_charges" in state.atom_extras
+    has_system_region_charges = "region_charges" in state.system_extras
+    if has_atom_region_charges == has_system_region_charges:
+        raise ValueError(
+            "TorchSim regional charge constraints require region_charges as either "
+            "an atom extra or a system extra, but not both."
+        )
+
+    normalized_mask = torch.empty_like(mask, dtype=torch.long)
+    targets = torch.empty(mask.shape, dtype=torch.get_default_dtype(), device=mask.device)
+    total_charge = state.charge if state.has_extras("charge") else None
+
+    if has_atom_region_charges:
+        atom_targets = state.atom_extras["region_charges"].to(
+            dtype=targets.dtype, device=mask.device
+        )
+        if atom_targets.ndim != 1 or len(atom_targets) != len(mask):
+            raise ValueError("region_charges must contain one target per atom.")
+        if not torch.isfinite(atom_targets).all():
+            raise ValueError("region_charges must contain only finite charges.")
+        _fill_torchsim_charge_targets_from_atom_targets(
+            mask=mask,
+            atom_targets=atom_targets,
+            normalized_mask=normalized_mask,
+            targets=targets,
+            n_node=n_node,
+            node_batch_index=node_batch_index,
+            total_charge=total_charge,
+        )
+    else:
+        values = state.system_extras["region_charges"].to(dtype=targets.dtype, device=mask.device)
+        if not torch.isfinite(values).all():
+            raise ValueError("region_charges must contain only finite charges.")
+        _fill_torchsim_charge_targets_from_system_values(
+            mask=mask,
+            values=values,
+            normalized_mask=normalized_mask,
+            targets=targets,
+            n_node=n_node,
+            node_batch_index=node_batch_index,
+            total_charge=total_charge,
+        )
+
+    return {
+        "region_mask": normalized_mask,
+        "region_charges": targets,
+    }
+
+
+def _fill_torchsim_charge_targets_from_system_values(
+    *,
+    mask: torch.Tensor,
+    values: torch.Tensor,
+    normalized_mask: torch.Tensor,
+    targets: torch.Tensor,
+    n_node: torch.Tensor,
+    node_batch_index: torch.Tensor,
+    total_charge: torch.Tensor | None,
+) -> None:
+    n_systems = len(n_node)
+    for system_idx in range(n_systems):
+        atom_filter = node_batch_index == system_idx
+        _, inverse = torch.unique(mask[atom_filter], sorted=True, return_inverse=True)
+        region_values = _torchsim_region_values_for_system(values, system_idx, n_systems)
+        if len(region_values) != int(inverse.max()) + 1:
+            raise ValueError(
+                "region_charges must contain one charge for each unique region label "
+                "in region_mask."
+            )
+        _validate_torchsim_region_charge_sum(region_values, total_charge, system_idx)
+        normalized_mask[atom_filter] = inverse
+        targets[atom_filter] = region_values[inverse]
+
+
+def _fill_torchsim_charge_targets_from_atom_targets(
+    *,
+    mask: torch.Tensor,
+    atom_targets: torch.Tensor,
+    normalized_mask: torch.Tensor,
+    targets: torch.Tensor,
+    n_node: torch.Tensor,
+    node_batch_index: torch.Tensor,
+    total_charge: torch.Tensor | None,
+) -> None:
+    for system_idx in range(len(n_node)):
+        atom_filter = node_batch_index == system_idx
+        _, inverse = torch.unique(mask[atom_filter], sorted=True, return_inverse=True)
+        normalized_mask[atom_filter] = inverse
+
+        region_values = []
+        system_targets = atom_targets[atom_filter]
+        for region_idx in range(int(inverse.max()) + 1):
+            region_targets = system_targets[inverse == region_idx]
+            if not torch.allclose(region_targets, region_targets[0].expand_as(region_targets)):
+                raise ValueError(
+                    "region_charges must be constant for each masked region."
+                )
+            region_values.append(region_targets[0])
+        region_values = torch.stack(region_values)
+        _validate_torchsim_region_charge_sum(region_values, total_charge, system_idx)
+        targets[atom_filter] = region_values[inverse]
+
+
+def _torchsim_region_values_for_system(
+    values: torch.Tensor,
+    system_idx: int,
+    n_systems: int,
+) -> torch.Tensor:
+    if values.ndim == 1:
+        if n_systems == 1:
+            return values
+        return values[system_idx].reshape(1)
+    if values.ndim == 2:
+        if values.shape[0] != n_systems:
+            raise ValueError("region_charges leading dim must match n_systems.")
+        return values[system_idx]
+    raise ValueError("region_charges must be one- or two-dimensional.")
+
+
+def _validate_torchsim_region_charge_sum(
+    region_values: torch.Tensor,
+    total_charge: torch.Tensor | None,
+    system_idx: int,
+) -> None:
+    if total_charge is not None and not torch.isclose(
+        region_values.sum(), total_charge[system_idx].to(dtype=region_values.dtype)
+    ):
+        raise ValueError("region_charges must sum to the corresponding total charge.")

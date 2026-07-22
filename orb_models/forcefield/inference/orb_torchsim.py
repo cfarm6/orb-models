@@ -123,6 +123,10 @@ class OrbTorchSimModel(ModelInterface):
             if model.forces_name in results:
                 results["direct_forces"] = results[model.forces_name]
             results["forces"] = results[model.grad_forces_name]
+            if "latent_charges" in out:
+                results["latent_charges"] = out["latent_charges"]
+            if "coulomb_energy" in out:
+                results["coulomb_energy"] = torch.atleast_1d(out["coulomb_energy"])
 
             if model.has_stress:
                 if model.stress_name in results:
