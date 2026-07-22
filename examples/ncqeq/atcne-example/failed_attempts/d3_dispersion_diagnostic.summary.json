@@ -1,0 +1,21 @@
+{
+  "method": "D3(BJ)/pbe via nvalchemiops-toolkit",
+  "d3_cutoff_angstrom": 12.0,
+  "d3_energy_min_ev": -0.51471346616745,
+  "d3_energy_max_ev": -0.39653411507606506,
+  "d3_relative_range_ev": 0.11817935109138489,
+  "d3_relative_5_to_6_change_ev": 0.0069398581981658936,
+  "ionic_unmodified": {
+    "range_5_to_6_ev": 1.2241960561186715,
+    "max_abs_step_5_to_6_ev": 0.3956979616632452,
+    "max_step_start_angstrom": 5.5,
+    "max_step_end_angstrom": 5.6
+  },
+  "ionic_plus_d3": {
+    "range_5_to_6_ev": 1.2197465097815439,
+    "max_abs_step_5_to_6_ev": 0.3950801893224707,
+    "max_step_start_angstrom": 5.5,
+    "max_step_end_angstrom": 5.6
+  },
+  "note": "D3 is geometry-only here, so it shifts all charge-constraint cases by the same spacing-dependent amount and does not change V."
+}
